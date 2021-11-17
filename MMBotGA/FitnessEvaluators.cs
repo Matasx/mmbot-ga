@@ -27,15 +27,32 @@ namespace MMBotGA
                 }
             }
 
-            var result = max_pl / max_downdraw;
-            return Math.Max(result, 0);
+            var result = Math.Max(max_pl / max_downdraw, 0);
+            return Normalize(result, 5, 30, null);
         }
 
         public static double TradeCountFactor(ICollection<RunResponse> results)
         {
-            // Avoid small trade count, that leads to overfitting
-            const double minTarget = 500d;
-            return Math.Min(minTarget, results.Count) / minTarget;
+            if (results.Count < 0) return 0;
+            var last = results.Last();
+            var first = results.First();
+
+            var trades = results.Where(x => x.Sz != 0).Count();
+            var alerts = 1 - ((results.Count - trades) / (double)results.Count);
+
+            var days = (last.Tm - first.Tm) / 86400000d;
+            var tradesPerDay = trades / days;
+
+            var mean = 10;
+            var delta = 5; // target trade range is 5 - 15 trades per day
+
+            var x = Math.Abs(tradesPerDay - mean); // 0 - inf, 0 is best
+            var y = Math.Max(x - delta, 0) + 1; // 1 - inf, 1 is best ... 
+            var r = 1 / y;
+
+            return r * alerts;
+
+            //return Normalize(trades, 1000, 3000, null) * alerts;
         }
 
         // todo: fitness that considers continual income over time
@@ -49,12 +66,25 @@ namespace MMBotGA
             var first = results.First();
 
             var interval = last.Tm - first.Tm;
-            return Math.Max(last.Npl * 31536000000 / (interval * request.RunRequest.Balance), 0);
+            var profit = Math.Max(last.Npl * 31536000000 / (interval * request.RunRequest.Balance), 0);
+            return Normalize(profit, 0.6, 3, null);
         }
 
         public static double NpaRRR(BacktestRequest request, ICollection<RunResponse> results)
         {
-            return NormalizedProfitPerYear(request, results) * RRR(results) * TradeCountFactor(results);
+            return (0.25 * NormalizedProfitPerYear(request, results)) + (0.25 * RRR(results)) + (0.5 * TradeCountFactor(results));
+        }
+
+        public static double Normalize(double value, double target, double virtualMax, double? cap)
+        {
+            if (value <= 0) return 0;
+            var capped = Math.Min(value, cap ?? value);
+            var baseline = Math.Min(capped, target) / target;
+            var aboveTarget = Math.Max(0, value - target);
+            var vMaxAboveTarget = virtualMax - target;
+            var extra = Math.Min(aboveTarget, vMaxAboveTarget) / vMaxAboveTarget;
+
+            return (0.75 * baseline) + (0.25 * extra);
         }
     }
 }
