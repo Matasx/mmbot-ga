@@ -9,4 +9,17 @@ internal static class DefaultDownloaderExtensions
         downloader.Download(downloadTask);
         return downloadTask.ToFileName();
     }
+
+    public static BacktestData GetBacktestData(this DefaultDownloader downloader, DownloadTask downloadTask,
+        bool reverse, double balance)
+    {
+        return new BacktestData
+        {
+            Broker = downloadTask.Exchange.ToLower(),
+            Pair = downloadTask.Symbol, // Get broker pair info: /admin/api/brokers/kucoin/pairs
+            SourceFile = downloader.GetFile(downloadTask),
+            Reverse = reverse,
+            Balance = balance
+        };
+    }
 }

@@ -8,6 +8,7 @@ using GeneticSharp.Domain.Terminations;
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using Downloader.Core.Core;
@@ -21,40 +22,21 @@ namespace MMBotGA
             ServicePointManager.DefaultConnectionLimit = 10;
 
             var downloader = new DefaultDownloader();
-            downloader.Download(new DownloadTask());
             var timeRange = DateTimeRange.FromUtcToday(TimeSpan.FromDays(-365));
 
             var apiPool = ApiDefinitions.GetLease();
-            var backtest = new BacktestAggregator(new[] {
-                new Backtest(apiPool, new BacktestData {
-                    Broker = "kucoin",
-                    Pair = "BTC-USDT", // Get broker pair info: /admin/api/brokers/kucoin/pairs
-                    SourceFile = downloader.GetFile(new DownloadTask("KUCOIN", "BTC-USDT", timeRange)),
-                    Reverse = false,
-                    Balance = 10000
-                }),
-                new Backtest(apiPool, new BacktestData {
-                    Broker = "kucoin",
-                    Pair = "ETH-USDT",
-                    SourceFile = downloader.GetFile(new DownloadTask("KUCOIN", "ETH-USDT", timeRange)),
-                    Reverse = false,
-                    Balance = 10000
-                }),
-                new Backtest(apiPool, new BacktestData {
-                    Broker = "kucoin",
-                    Pair = "ZEC-USDT",
-                    SourceFile = downloader.GetFile(new DownloadTask("KUCOIN", "ZEC-USDT", timeRange)),
-                    Reverse = false,
-                    Balance = 10000
-                }),
-                new Backtest(apiPool, new BacktestData {
-                    Broker = "binance",
-                    Pair = "XRPBTC",
-                    SourceFile = downloader.GetFile(new DownloadTask("BINANCE", "XRPBTC", timeRange)),
-                    Reverse = false,
-                    Balance = 0.1
-                })
-            });
+            var backtestData = new[]
+                {
+                    downloader.GetBacktestData(new DownloadTask("KUCOIN", "BTC-USDT", timeRange), false, 10000),
+                    downloader.GetBacktestData(new DownloadTask("KUCOIN", "ETH-USDT", timeRange), false, 10000),
+                    downloader.GetBacktestData(new DownloadTask("KUCOIN", "ZEC-USDT", timeRange), false, 10000),
+                    downloader.GetBacktestData(new DownloadTask("BINANCE", "XRPBTC", timeRange), false, 0.1)
+                }
+                .Select(x => new Backtest(apiPool, x))
+                .Cast<IBacktest>()
+                .ToList();
+
+            var backtest = new BacktestAggregator(backtestData);
 
             // GA
             var selection = new EliteSelection();
@@ -69,7 +51,7 @@ namespace MMBotGA
 
             var ga = new GeneticAlgorithm(population, fitness, selection, crossover, mutation)
             {
-                Termination = new FitnessStagnationTermination(100),
+                Termination = new FitnessStagnationTermination(30),
                 TaskExecutor = new ExactParallelTaskExecutor(apiPool.Available)
             };
 
