@@ -15,9 +15,9 @@ using Downloader.Core.Core;
 
 namespace MMBotGA
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             ServicePointManager.DefaultConnectionLimit = 10;
 
@@ -25,42 +25,50 @@ namespace MMBotGA
             var timeRange = DateTimeRange.FromUtcToday(TimeSpan.FromDays(-365));
 
             var apiPool = ApiDefinitions.GetLease();
-            var backtestData = new[]
+            ThreadPool.SetMinThreads(apiPool.Available, apiPool.Available);
+
+            var batches = new[]
+            {
+                new Batch("BTC-USDT", new[]
                 {
                     downloader.GetBacktestData(new DownloadTask("KUCOIN", "BTC-USDT", timeRange), false, 10000),
                     downloader.GetBacktestData(new DownloadTask("KUCOIN", "ETH-USDT", timeRange), false, 10000),
                     downloader.GetBacktestData(new DownloadTask("KUCOIN", "ZEC-USDT", timeRange), false, 10000),
                     downloader.GetBacktestData(new DownloadTask("BINANCE", "XRPBTC", timeRange), false, 0.1)
-                }
-                .Select(x => new Backtest(apiPool, x))
-                .Cast<IBacktest>()
-                .ToList();
-
-            var backtest = new BacktestAggregator(backtestData);
+                })
+            };
 
             // GA
             var selection = new EliteSelection();
             var crossover = new UniformCrossover();
             var mutation = new UniformMutation(true);
-
-            var fitness = new FitnessEvaluator(backtest);
-
             var chromosome = new StrategyChromosome();
-
             var population = new Population(500, 1000, chromosome);
+            var termination = new FitnessStagnationTermination(30);
+            var executor = new ExactParallelTaskExecutor(apiPool.Available);
 
-            var ga = new GeneticAlgorithm(population, fitness, selection, crossover, mutation)
+            foreach (var batch in batches)
             {
-                Termination = new FitnessStagnationTermination(30),
-                TaskExecutor = new ExactParallelTaskExecutor(apiPool.Available)
-            };
+                var backtestData = batch.BacktestData
+                    .Select(x => new Backtest(apiPool, x))
+                    .Cast<IBacktest>()
+                    .ToList();
+                var backtest = new BacktestAggregator(backtestData);
+                var fitness = new FitnessEvaluator(backtest);
+                var ga = new GeneticAlgorithm(population, fitness, selection, crossover, mutation)
+                {
+                    Termination = termination,
+                    TaskExecutor = executor
+                };
+                //TODO: csv results per batch
+                Run(ga, batch.Name);
+            }
+        }
 
-            // Configure threadpool
-            ThreadPool.GetMinThreads(out var minWorker, out var minIOC);
-            ThreadPool.SetMinThreads(apiPool.Available, apiPool.Available);
-
+        private static void Run(GeneticAlgorithm ga, string name)
+        {
             // Run & write results
-            using var writer = new StreamWriter($"results-{DateTime.Now.ToString("s").Replace(':', '.')}.csv", false);
+            using var writer = new StreamWriter($"results-{name}-{DateTime.Now.ToString("s").Replace(':', '.')}.csv", false);
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
             csv.Context.RegisterClassMap<CsvMap>();
             csv.WriteHeader<StrategyChromosome>();
@@ -69,7 +77,7 @@ namespace MMBotGA
 
             StrategyChromosome lastBest = null;
 
-            ga.GenerationRan += (s, e) =>
+            void OnGaOnGenerationRan(object o, EventArgs eventArgs)
             {
                 var current = ga.BestChromosome as StrategyChromosome;
                 if (current.Metadata != lastBest?.Metadata)
@@ -83,10 +91,14 @@ namespace MMBotGA
                 Console.WriteLine();
                 Console.WriteLine($"Generation {ga.GenerationsNumber}. Best fitness: {ga.BestChromosome.Fitness.Value}");
                 Console.WriteLine();
-            };
+            }
+
+            ga.GenerationRan += OnGaOnGenerationRan;
 
             Console.WriteLine("GA running...");
             ga.Start();
+
+            ga.GenerationRan -= OnGaOnGenerationRan;
         }
     }
 }
