@@ -21,11 +21,11 @@ namespace MMBotGA
         {
             ServicePointManager.DefaultConnectionLimit = 10;
 
-            var downloader = new DefaultDownloader();
-            var timeRange = DateTimeRange.FromUtcToday(TimeSpan.FromDays(-365));
-
             var apiPool = ApiDefinitions.GetLease();
             ThreadPool.SetMinThreads(apiPool.Available, apiPool.Available);
+
+            var downloader = new DefaultDownloader();
+            var timeRange = DateTimeRange.FromUtcToday(TimeSpan.FromDays(-365));
 
             var batches = new[]
             {
@@ -67,25 +67,17 @@ namespace MMBotGA
 
         private static void Run(GeneticAlgorithm ga, string name)
         {
-            // Run & write results
-            using var writer = new StreamWriter($"results-{name}-{DateTime.Now.ToString("s").Replace(':', '.')}.csv", false);
-            using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
-            csv.Context.RegisterClassMap<CsvMap>();
-            csv.WriteHeader<StrategyChromosome>();
-            csv.NextRecord();
-            csv.Flush();
+            using var csv = new CsvWrapper<CsvMap, StrategyChromosome>(name);
 
             StrategyChromosome lastBest = null;
 
-            void OnGaOnGenerationRan(object o, EventArgs eventArgs)
+            void OnGenerationRan(object o, EventArgs eventArgs)
             {
                 var current = ga.BestChromosome as StrategyChromosome;
                 if (current.Metadata != lastBest?.Metadata)
                 {
                     lastBest = current;
                     csv.WriteRecord(lastBest);
-                    csv.NextRecord();
-                    csv.Flush();
                 }
 
                 Console.WriteLine();
@@ -93,12 +85,12 @@ namespace MMBotGA
                 Console.WriteLine();
             }
 
-            ga.GenerationRan += OnGaOnGenerationRan;
+            ga.GenerationRan += OnGenerationRan;
 
             Console.WriteLine("GA running...");
             ga.Start();
 
-            ga.GenerationRan -= OnGaOnGenerationRan;
+            ga.GenerationRan -= OnGenerationRan;
         }
     }
 }
