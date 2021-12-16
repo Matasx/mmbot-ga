@@ -1,0 +1,3 @@
+[submodule "mmbot-downloader"]
+	path = mmbot-downloader
+	url = https://github.com/Matasx/mmbot-downloader.git
