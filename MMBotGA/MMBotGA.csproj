@@ -10,4 +10,8 @@
     <PackageReference Include="GeneticSharp" Version="2.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\mmbot-downloader\Downloader.Core\Downloader.Core.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,31 @@
+﻿using System.Net.Http;
+using Downloader.Core.Core;
+using Downloader.Core.Exchange.Binance;
+using Downloader.Core.Exchange.Bitfinex;
+using Downloader.Core.Exchange.FTX;
+using Downloader.Core.Exchange.Kucoin;
+using Downloader.Core.Utils;
+
+namespace MMBotGA;
+
+internal class DefaultDownloader
+{
+    private readonly DownloadOrchestrator _downloadOrchestrator;
+
+    public DefaultDownloader()
+    {
+        var ui = new UserInterface();
+        var client = new HttpClient(new TransientErrorRetryHttpClientHandler());
+        _downloadOrchestrator = new DownloadOrchestrator(ui, new IGenericDownloader[] {
+            new BinanceDownloader(client),
+            new BitfinexDownloader(client),
+            new FTXDownloader(client),
+            new KucoinDownloader(client)
+        });
+    }
+
+    public void Download(DownloadTask downloadTask)
+    {
+        _downloadOrchestrator.Download(downloadTask);
+    }
+}

@@ -1,6 +1,5 @@
 ﻿using CsvHelper;
 using GeneticSharp.Domain;
-using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Crossovers;
 using GeneticSharp.Domain.Mutations;
 using GeneticSharp.Domain.Populations;
@@ -10,8 +9,8 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Threading;
+using Downloader.Core.Core;
 
 namespace MMBotGA
 {
@@ -19,48 +18,39 @@ namespace MMBotGA
     {
         static void Main(string[] args)
         {
-            static LeasableApi CreateBackend(int leaseCount, string url, string username, string password)
-            {
-                return new LeasableApi(leaseCount, new Api(url, new HttpClient(new HttpClientHandler()
-                {
-                    Credentials = new NetworkCredential(username, password),
-                    PreAuthenticate = true,
-                    MaxConnectionsPerServer = 20
-                })));
-            }
+            ServicePointManager.DefaultConnectionLimit = 10;
 
-            var apiPool = new ApiLease(
-                //RPi
-                CreateBackend(6, "http://192.168.1.150:10000/admin/api/", "user", "pass"),
-                //mtxs
-                CreateBackend(10, "http://192.168.1.170:20000/admin/api/", "user", "pass")
-            );
+            var downloader = new DefaultDownloader();
+            downloader.Download(new DownloadTask());
+            var timeRange = DateTimeRange.FromUtcToday(TimeSpan.FromDays(-365));
+
+            var apiPool = ApiDefinitions.GetLease();
             var backtest = new BacktestAggregator(new[] {
                 new Backtest(apiPool, new BacktestData {
                     Broker = "kucoin",
                     Pair = "BTC-USDT", // Get broker pair info: /admin/api/brokers/kucoin/pairs
-                    SourceFile = "data\\BTCUSDT_1.1.2021_11.11.2021.csv",
+                    SourceFile = downloader.GetFile(new DownloadTask("KUCOIN", "BTC-USDT", timeRange)),
                     Reverse = false,
                     Balance = 10000
                 }),
                 new Backtest(apiPool, new BacktestData {
                     Broker = "kucoin",
                     Pair = "ETH-USDT",
-                    SourceFile = "data\\ETHUSDT_1.1.2021_11.11.2021.csv",
+                    SourceFile = downloader.GetFile(new DownloadTask("KUCOIN", "ETH-USDT", timeRange)),
                     Reverse = false,
                     Balance = 10000
                 }),
                 new Backtest(apiPool, new BacktestData {
                     Broker = "kucoin",
                     Pair = "ZEC-USDT",
-                    SourceFile = "data\\ZECUSDT_1.1.2021_11.11.2021.csv",
+                    SourceFile = downloader.GetFile(new DownloadTask("KUCOIN", "ZEC-USDT", timeRange)),
                     Reverse = false,
                     Balance = 10000
                 }),
                 new Backtest(apiPool, new BacktestData {
                     Broker = "binance",
                     Pair = "XRPBTC",
-                    SourceFile = "data\\XRPBTC_1.1.2021_11.11.2021.csv",
+                    SourceFile = downloader.GetFile(new DownloadTask("BINANCE", "XRPBTC", timeRange)),
                     Reverse = false,
                     Balance = 0.1
                 })
@@ -95,14 +85,15 @@ namespace MMBotGA
             csv.NextRecord();
             csv.Flush();
 
-            IChromosome lastBest = null;
+            StrategyChromosome lastBest = null;
 
             ga.GenerationRan += (s, e) =>
             {
-                if (ga.BestChromosome != lastBest)
+                var current = ga.BestChromosome as StrategyChromosome;
+                if (current.Metadata != lastBest?.Metadata)
                 {
-                    lastBest = ga.BestChromosome;
-                    csv.WriteRecord(lastBest as StrategyChromosome);
+                    lastBest = current;
+                    csv.WriteRecord(lastBest);
                     csv.NextRecord();
                     csv.Flush();
                 }
