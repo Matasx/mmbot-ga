@@ -2,8 +2,8 @@
 
 namespace MMBotGA
 {
-    internal interface IBacktest
+    internal interface IBacktest<TData>
     {
-        Task<double> TestAsync(BacktestRequest request);
+        Task<BacktestResult<TData>> TestAsync(BacktestRequest request);
     }
 }

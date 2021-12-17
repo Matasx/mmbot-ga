@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MMBotGA
 {
-    internal class Backtest : IBacktest
+    internal class Backtest : IBacktest<ICollection<RunResponse>>
     {
         private readonly SemaphoreSlim _semaphore = new(1);
         private readonly ApiLease _api;
@@ -23,23 +23,21 @@ namespace MMBotGA
             _fitnessEvaluator = fitnessEvaluator ?? FitnessEvaluators.NpaRRR;
         }
 
-        public async Task<double> TestAsync(BacktestRequest request)
+        public async Task<BacktestResult<ICollection<RunResponse>>> TestAsync(BacktestRequest request)
         {
             var api = await _api.LeaseAsync();
             try
             {
                 await _semaphore.WaitAsync();
-                Context context = null;
+                Context context;
                 try
                 {
                     if (!_contexts.TryGetValue(api, out context))
                     {
                         _contexts[api] = context = new Context(this, api);
                     }
-                    if (_minfo == null)
-                    {
-                        _minfo = await context.GetMinfoAsync();
-                    }                    
+
+                    _minfo ??= await context.GetMinfoAsync();
                 }
                 finally
                 {
@@ -96,13 +94,13 @@ namespace MMBotGA
                 return await _api.GetInfoAsync(_backtest._data.Broker, _backtest._data.Pair);
             }
 
-            public async Task<double> TestAsync(BacktestRequest request)
+            public async Task<BacktestResult<ICollection<RunResponse>>> TestAsync(BacktestRequest request)
             {
                 await CheckInitAsync();
                 return await EvaluateAsync(request);
             }
 
-            private async Task<double> EvaluateAsync(BacktestRequest request)
+            private async Task<BacktestResult<ICollection<RunResponse>>> EvaluateAsync(BacktestRequest request)
             {
                 for (var i = 0; i < 3; i++)
                 {
@@ -124,10 +122,11 @@ namespace MMBotGA
                         }
                     }
                 }
-                return 0;
+
+                return new BacktestResult<ICollection<RunResponse>>(default, default);
             }
 
-            private async Task<double> DoEvaluateAsync(BacktestRequest request)
+            private async Task<BacktestResult<ICollection<RunResponse>>> DoEvaluateAsync(BacktestRequest request)
             {
                 request.GenTradesRequest.Source = _dataset.Id;
                 var trades = await _api.GenerateTradesAsync(request.GenTradesRequest);
@@ -135,7 +134,7 @@ namespace MMBotGA
                 request.RunRequest.Source = trades.Id;
                 var response = await _api.RunAsync(request.RunRequest);
 
-                return _backtest._fitnessEvaluator(request, response);
+                return new BacktestResult<ICollection<RunResponse>>(_backtest._fitnessEvaluator(request, response), response);
             }
         }
     }

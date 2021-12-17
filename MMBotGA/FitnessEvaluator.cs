@@ -1,11 +1,13 @@
 ﻿using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Fitnesses;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using MMBotGA.dto;
 
 namespace MMBotGA
 {
@@ -15,9 +17,9 @@ namespace MMBotGA
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
-        private readonly IBacktest _backtest;
+        private readonly IBacktest<ICollection<RunResponse>> _backtest;
 
-        public FitnessEvaluator(IBacktest backtest)
+        public FitnessEvaluator(IBacktest<ICollection<RunResponse>> backtest)
         {
             _backtest = backtest;
         }
@@ -36,8 +38,10 @@ namespace MMBotGA
             var result = await _backtest.TestAsync(request);
             stopwatch.Stop();
 
-            Console.WriteLine($"Done in {stopwatch.ElapsedMilliseconds} ms: {result}");
-            return result;
+            chromosome.Statistics = StatisticsEvaluator.Evaluate(result.Data);
+
+            Console.WriteLine($"Done in {stopwatch.ElapsedMilliseconds} ms: {result.Fitness}");
+            return result.Fitness;
         }
     }
 }

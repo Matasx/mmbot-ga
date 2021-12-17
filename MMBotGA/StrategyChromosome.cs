@@ -32,7 +32,13 @@ namespace MMBotGA
 
         #endregion
 
+        public string ID { get; set; }
+
+        public int Generation { get; set; }
+
         public string Metadata { get; set; }
+
+        public Statistics Statistics { get; set; }
 
         public override Gene GenerateGene(int geneIndex)
         {

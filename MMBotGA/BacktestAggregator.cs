@@ -5,22 +5,28 @@ using System.Threading.Tasks;
 
 namespace MMBotGA
 {
-    internal class BacktestAggregator : IBacktest
+    internal class BacktestAggregator<TData> : IBacktest<TData>
     {
-        private readonly ICollection<IBacktest> _backtests;
-        private readonly Func<IEnumerable<double>, double> _aggregationFunc;
+        private readonly ICollection<IBacktest<TData>> _backtests;
+        private readonly Func<IEnumerable<BacktestResult<TData>>, BacktestResult<TData>> _aggregationFunc;
 
-        public BacktestAggregator(ICollection<IBacktest> backtests, Func<IEnumerable<double>, double> aggregationFunc = null)
+        public BacktestAggregator(ICollection<IBacktest<TData>> backtests, Func<IEnumerable<BacktestResult<TData>>, BacktestResult<TData>> aggregationFunc = null)
         {
             _backtests = backtests;
-            _aggregationFunc = aggregationFunc ?? (x => x.Min());
+            _aggregationFunc = aggregationFunc ?? DefaultAggregationFunc;
         }
 
-        public async Task<double> TestAsync(BacktestRequest request)
+        private static BacktestResult<TData> DefaultAggregationFunc(IEnumerable<BacktestResult<TData>> backtestResults)
         {
-            if (_backtests.Count == 0) return 0;
+            return backtestResults.OrderBy(x => x.Fitness).FirstOrDefault() ??
+                   new BacktestResult<TData>(default, default);
+        }
 
-            var results = new List<double>();            
+        public async Task<BacktestResult<TData>> TestAsync(BacktestRequest request)
+        {
+            if (_backtests.Count == 0) return new BacktestResult<TData>(default, default);
+
+            var results = new List<BacktestResult<TData>>();            
             foreach (var backtest in _backtests)
             {
                 results.Add(await backtest.TestAsync(request));
