@@ -8,19 +8,23 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using MMBotGA.dto;
+using Terminal.Gui;
 
 namespace MMBotGA
 {
     class FitnessEvaluator : IFitness
     {
+        private readonly ProgressBar _progressBar;
+
         private readonly JsonSerializerOptions _jsonOptions = new()
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
         private readonly IBacktest<ICollection<RunResponse>> _backtest;
 
-        public FitnessEvaluator(IBacktest<ICollection<RunResponse>> backtest)
+        public FitnessEvaluator(ProgressBar progressBar, IBacktest<ICollection<RunResponse>> backtest)
         {
+            _progressBar = progressBar;
             _backtest = backtest;
         }
 
@@ -39,6 +43,11 @@ namespace MMBotGA
             stopwatch.Stop();
 
             chromosome.Statistics = StatisticsEvaluator.Evaluate(result.Data);
+
+            Application.MainLoop.Invoke(() =>
+            {
+                _progressBar.Pulse();
+            });
 
             Console.WriteLine($"Done in {stopwatch.ElapsedMilliseconds} ms: {result.Fitness}");
             return result.Fitness;

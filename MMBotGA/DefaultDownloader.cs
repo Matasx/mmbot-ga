@@ -12,11 +12,11 @@ internal class DefaultDownloader
 {
     private readonly DownloadOrchestrator _downloadOrchestrator;
 
-    public DefaultDownloader()
+    public DefaultDownloader(IProgress progress)
     {
         var ui = new UserInterface();
         var client = new HttpClient(new TransientErrorRetryHttpClientHandler());
-        _downloadOrchestrator = new DownloadOrchestrator(ui, new IGenericDownloader[] {
+        _downloadOrchestrator = new DownloadOrchestrator(ui, progress, new IGenericDownloader[] {
             new BinanceDownloader(client),
             new BitfinexDownloader(client),
             new FTXDownloader(client),
