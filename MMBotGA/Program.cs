@@ -5,12 +5,10 @@ using GeneticSharp.Domain.Populations;
 using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using Downloader.Core.Core;
-using MMBotGA.dto;
 
 namespace MMBotGA
 {
@@ -23,10 +21,45 @@ namespace MMBotGA
             var apiPool = ApiDefinitions.GetLease();
             ThreadPool.SetMinThreads(apiPool.Available, apiPool.Available);
 
-            var downloader = new DefaultDownloader();
-            var timeRange = DateTimeRange.FromUtcToday(TimeSpan.FromDays(-365));
+            var backtestBatches = GetBatches(DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(-60), TimeSpan.FromDays(-365)));
+            var controlBatches = GetBatches(DateTimeRange.FromUtcToday(TimeSpan.FromDays(-60)));
 
-            var batches = new[]
+            // GA
+            var selection = new EliteSelection();
+            var crossover = new UniformCrossover();
+            var mutation = new UniformMutation(true);
+            var chromosome = new StrategyChromosome();
+            var population = new Population(500, 1000, chromosome);
+            var termination = new FitnessStagnationTermination(15);
+            var executor = new ExactParallelTaskExecutor(apiPool.Available);
+
+            using var csvBacktest = new CsvWrapper<CsvMap, StrategyChromosome>("BACKTEST");
+            using var csvControl = new CsvWrapper<CsvMap, StrategyChromosome>("CONTROL");
+            foreach (var batch in backtestBatches)
+            {
+                var ga = new GeneticAlgorithm(population, batch.ToFitness(apiPool), selection, crossover, mutation)
+                {
+                    Termination = termination,
+                    TaskExecutor = executor
+                };
+
+                var best = Run(ga, batch.Name);
+                if (best != null)
+                {
+                    csvBacktest.WriteRecord(best);
+
+                    // Re-evaluate over control set
+                    var controlFitness = controlBatches.First(x => x.Name == batch.Name).ToFitness(apiPool);
+                    controlFitness.Evaluate(best);
+                    csvControl.WriteRecord(best);
+                }
+            }
+        }
+
+        private static Batch[] GetBatches(DateTimeRange timeRange)
+        {
+            var downloader = new DefaultDownloader();
+            return new[]
             {
                 new Batch("BTC-USDT", new[]
                 {
@@ -64,34 +97,6 @@ namespace MMBotGA
                     downloader.GetBacktestData(new DownloadTask("BINANCE", "ADAUSDT", timeRange), true, 10000)
                 })
             };
-
-            // GA
-            var selection = new EliteSelection();
-            var crossover = new UniformCrossover();
-            var mutation = new UniformMutation(true);
-            var chromosome = new StrategyChromosome();
-            var population = new Population(500, 1000, chromosome);
-            var termination = new FitnessStagnationTermination(15);
-            var executor = new ExactParallelTaskExecutor(apiPool.Available);
-
-            using var csv = new CsvWrapper<CsvMap, StrategyChromosome>("MASTER");
-            foreach (var batch in batches)
-            {
-                var backtestData = batch.BacktestData
-                    .Select(x => new Backtest(apiPool, x))
-                    .Cast<IBacktest<ICollection<RunResponse>>>()
-                    .ToList();
-                var backtest = new BacktestAggregator<ICollection<RunResponse>>(backtestData);
-                var fitness = new FitnessEvaluator(backtest);
-                var ga = new GeneticAlgorithm(population, fitness, selection, crossover, mutation)
-                {
-                    Termination = termination,
-                    TaskExecutor = executor
-                };
-
-                var best = Run(ga, batch.Name);
-                if (best != null) csv.WriteRecord(best);
-            }
         }
 
         private static StrategyChromosome Run(GeneticAlgorithm ga, string name)
