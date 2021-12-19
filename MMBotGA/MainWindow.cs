@@ -130,36 +130,47 @@ internal class MainWindow
         var termination = new FitnessStagnationTermination(15);
         var executor = new ExactParallelTaskExecutor(apiPool.Available);
 
-        using var csvBacktest = new CsvWrapper<CsvMap, StrategyChromosome>("BACKTEST");
-        using var csvControl = new CsvWrapper<CsvMap, StrategyChromosome>("CONTROL");
-        foreach (var batch in backtestBatches)
+        using (var csvBacktest = new CsvWrapper<CsvMap, StrategyChromosome>("BACKTEST"))
+        using (var csvControl = new CsvWrapper<CsvMap, StrategyChromosome>("CONTROL"))
         {
-            Application.MainLoop.Invoke(() =>
+            foreach (var batch in backtestBatches)
             {
-                _txtBatch.Text = batch.Name;
-                _txtGeneration.Text = "0";
-                _txtFitness.Text = string.Empty;
-            });
+                Application.MainLoop.Invoke(() =>
+                {
+                    _txtBatch.Text = batch.Name;
+                    _txtGeneration.Text = "0";
+                    _txtFitness.Text = string.Empty;
+                });
 
-            var ga = new GeneticAlgorithm(population, batch.ToFitness(_progressBar, apiPool), selection, crossover, mutation)
-            {
-                Termination = termination,
-                TaskExecutor = executor
-            };
+                var ga = new GeneticAlgorithm(population, batch.ToFitness(_progressBar, apiPool), selection, crossover,
+                    mutation)
+                {
+                    Termination = termination,
+                    TaskExecutor = executor
+                };
 
-            var best = RunGA(ga, batch.Name);
-            if (best != null)
-            {
-                csvBacktest.WriteRecord(best);
+                var best = RunGA(ga, batch.Name);
+                if (best != null)
+                {
+                    csvBacktest.WriteRecord(best);
 
-                // Re-evaluate over control set
-                var controlFitness = controlBatches.First(x => x.Name == batch.Name).ToFitness(_progressBar, apiPool);
-                controlFitness.Evaluate(best);
-                csvControl.WriteRecord(best);
+                    // Re-evaluate over control set
+                    var controlFitness =
+                        controlBatches.First(x => x.Name == batch.Name).ToFitness(_progressBar, apiPool);
+                    controlFitness.Evaluate(best);
+                    csvControl.WriteRecord(best);
+                }
             }
         }
 
-        Application.MainLoop.Invoke(() => MessageBox.Query("Information", "GA is finished.", "OK"));
+        Application.MainLoop.Invoke(() =>
+        {
+            _txtBatch.Text = "FINISHED";
+            _txtGeneration.Text = string.Empty;
+            _txtFitness.Text = string.Empty;
+        });
+
+        //Application.MainLoop.Invoke(() => MessageBox.Query("Information", "GA is finished.", "OK"));
     }
 
     private Batch[] GetBatches(DateTimeRange timeRange)
