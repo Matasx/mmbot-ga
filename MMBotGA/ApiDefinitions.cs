@@ -1,31 +1,33 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using MMBotGA.api;
 
-namespace MMBotGA;
-
-internal static class ApiDefinitions
+namespace MMBotGA
 {
-    public static ApiLease GetLease()
+    internal static class ApiDefinitions
     {
-        return new ApiLease(
-            //RPi
-            CreateBackend(6, "http://192.168.1.150:10000/admin/api/", "user", "pass"),
-            //mtxs
-            CreateBackend(10, "http://192.168.1.170:20000/admin/api/", "user", "pass")
-        );
-    }
+        public static ApiLease GetLease()
+        {
+            return new ApiLease(
+                //RPi
+                CreateBackend(6, "http://192.168.1.150:10000/admin/api/", "user", "pass"),
+                //mtxs
+                CreateBackend(10, "http://192.168.1.170:20000/admin/api/", "user", "pass")
+            );
+        }
 
-    private static LeasableApi CreateBackend(int leaseCount, string url, string username, string password)
-    {
-        return new LeasableApi(leaseCount, new Api(url, new HttpClient(new HttpClientHandler()
+        private static LeasableApi CreateBackend(int leaseCount, string url, string username, string password)
         {
-            Credentials = new NetworkCredential(username, password),
-            PreAuthenticate = true,
-            MaxConnectionsPerServer = 20
-        })
-        {
-            Timeout = TimeSpan.FromMinutes(2)
-        }));
+            return new LeasableApi(leaseCount, new Api(url, new HttpClient(new HttpClientHandler()
+            {
+                Credentials = new NetworkCredential(username, password),
+                PreAuthenticate = true,
+                MaxConnectionsPerServer = 20
+            })
+            {
+                Timeout = TimeSpan.FromMinutes(2)
+            }));
+        }
     }
 }
