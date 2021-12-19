@@ -7,17 +7,18 @@ using MMBotGA.dto;
 using MMBotGA.ga.fitness;
 using Terminal.Gui;
 
-namespace MMBotGA.ga.abstraction;
-
-internal static class BatchExtensions
+namespace MMBotGA.ga.abstraction
 {
-    public static IFitness ToFitness(this Batch batch, ProgressBar progressBar, ApiLease apiPool)
+    internal static class BatchExtensions
     {
-        var backtestData = batch.BacktestData
-            .Select(x => new Backtest(apiPool, x))
-            .Cast<IBacktest<ICollection<RunResponse>>>()
-            .ToList();
-        var backtest = new BacktestAggregator<ICollection<RunResponse>>(backtestData);
-        return new FitnessEvaluator(progressBar, backtest);
+        public static IFitness ToFitness(this Batch batch, ProgressBar progressBar, ApiLease apiPool)
+        {
+            var backtestData = batch.BacktestData
+                .Select(x => new Backtest(apiPool, x))
+                .Cast<IBacktest<ICollection<RunResponse>>>()
+                .ToList();
+            var backtest = new BacktestAggregator<ICollection<RunResponse>>(backtestData);
+            return new FitnessEvaluator(progressBar, backtest);
+        }
     }
 }

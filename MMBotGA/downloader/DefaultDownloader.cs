@@ -6,26 +6,27 @@ using Downloader.Core.Exchange.FTX;
 using Downloader.Core.Exchange.Kucoin;
 using Downloader.Core.Utils;
 
-namespace MMBotGA.downloader;
-
-internal class DefaultDownloader
+namespace MMBotGA.downloader
 {
-    private readonly DownloadOrchestrator _downloadOrchestrator;
-
-    public DefaultDownloader(IProgress progress)
+    internal class DefaultDownloader
     {
-        var ui = new UserInterface();
-        var client = new HttpClient(new TransientErrorRetryHttpClientHandler());
-        _downloadOrchestrator = new DownloadOrchestrator(ui, progress, new IGenericDownloader[] {
-            new BinanceDownloader(client),
-            new BitfinexDownloader(client),
-            new FTXDownloader(client),
-            new KucoinDownloader(client)
-        });
-    }
+        private readonly DownloadOrchestrator _downloadOrchestrator;
 
-    public void Download(DownloadTask downloadTask)
-    {
-        _downloadOrchestrator.Download(downloadTask);
+        public DefaultDownloader(IProgress progress)
+        {
+            var ui = new UserInterface();
+            var client = new HttpClient(new TransientErrorRetryHttpClientHandler());
+            _downloadOrchestrator = new DownloadOrchestrator(ui, progress, new IGenericDownloader[] {
+                new BinanceDownloader(client),
+                new BitfinexDownloader(client),
+                new FTXDownloader(client),
+                new KucoinDownloader(client)
+            });
+        }
+
+        public void Download(DownloadTask downloadTask)
+        {
+            _downloadOrchestrator.Download(downloadTask);
+        }
     }
 }

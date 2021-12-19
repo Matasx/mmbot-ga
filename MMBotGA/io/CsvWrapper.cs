@@ -4,31 +4,32 @@ using System.IO;
 using CsvHelper;
 using CsvHelper.Configuration;
 
-namespace MMBotGA.io;
-
-internal class CsvWrapper<TMap, TRecord> : IDisposable where TMap : ClassMap
+namespace MMBotGA.io
 {
-    private readonly CsvWriter _csv;
-
-    public CsvWrapper(string name)
+    internal class CsvWrapper<TMap, TRecord> : IDisposable where TMap : ClassMap
     {
-        var writer = new StreamWriter($"results-{name}-{DateTime.Now.ToString("s").Replace(':', '.')}.csv", false);
-        _csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
-        _csv.Context.RegisterClassMap<TMap>();
-        _csv.WriteHeader<TRecord>();
-        _csv.NextRecord();
-        _csv.Flush();
-    }
+        private readonly CsvWriter _csv;
 
-    public void WriteRecord(TRecord record)
-    {
-        _csv.WriteRecord(record);
-        _csv.NextRecord();
-        _csv.Flush();
-    }
+        public CsvWrapper(string name)
+        {
+            var writer = new StreamWriter($"results-{name}-{DateTime.Now.ToString("s").Replace(':', '.')}.csv", false);
+            _csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+            _csv.Context.RegisterClassMap<TMap>();
+            _csv.WriteHeader<TRecord>();
+            _csv.NextRecord();
+            _csv.Flush();
+        }
 
-    public void Dispose()
-    {
-        _csv?.Dispose();
+        public void WriteRecord(TRecord record)
+        {
+            _csv.WriteRecord(record);
+            _csv.NextRecord();
+            _csv.Flush();
+        }
+
+        public void Dispose()
+        {
+            _csv?.Dispose();
+        }
     }
 }

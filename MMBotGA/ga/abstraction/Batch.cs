@@ -1,15 +1,16 @@
 ﻿using MMBotGA.backtest;
 
-namespace MMBotGA.ga.abstraction;
-
-internal class Batch
+namespace MMBotGA.ga.abstraction
 {
-    public string Name { get; }
-    public BacktestData[] BacktestData { get; }
-
-    public Batch(string name, BacktestData[] backtestData)
+    internal class Batch
     {
-        Name = name;
-        BacktestData = backtestData;
+        public string Name { get; }
+        public BacktestData[] BacktestData { get; }
+
+        public Batch(string name, BacktestData[] backtestData)
+        {
+            Name = name;
+            BacktestData = backtestData;
+        }
     }
 }
