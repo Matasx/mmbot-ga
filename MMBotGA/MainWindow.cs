@@ -9,6 +9,12 @@ using GeneticSharp.Domain.Mutations;
 using GeneticSharp.Domain.Populations;
 using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
+using MMBotGA.downloader;
+using MMBotGA.ga;
+using MMBotGA.ga.abstraction;
+using MMBotGA.ga.execution;
+using MMBotGA.io;
+using MMBotGA.ui;
 using Terminal.Gui;
 
 namespace MMBotGA;
@@ -46,13 +52,16 @@ internal class MainWindow
         });
         top.Add(menu);
 
-        var lblbatch = new Label("Batch: ");
+        var lblbatch = new Label("Batch: ")
+        {
+            Width = 15
+        };
         _txtBatch = new TextField
         {
             ReadOnly = true,
             X = Pos.Right(lblbatch),
             Y = Pos.Top(lblbatch),
-            Width = 10
+            Width = 15
         };
 
         var lblGeneration = new Label("Generation: ")
@@ -62,9 +71,9 @@ internal class MainWindow
         _txtGeneration = new TextField
         {
             ReadOnly = true,
-            X = Pos.Right(lblGeneration),
+            X = _txtBatch.X,
             Y = Pos.Top(lblGeneration),
-            Width = 10
+            Width = _txtBatch.Width
         };
 
         var lblFitness = new Label("Best fitness: ")
@@ -74,14 +83,14 @@ internal class MainWindow
         _txtFitness = new TextField
         {
             ReadOnly = true,
-            X = Pos.Right(lblFitness),
+            X = _txtBatch.X,
             Y = Pos.Top(lblFitness),
-            Width = 10
+            Width = _txtBatch.Width
         };
 
         _progressBar = new ProgressBar
         {
-            Y = Pos.Bottom(lblFitness),
+            Y = Pos.Bottom(lblFitness) + 1,
             Width = Dim.Fill()
         };
 
@@ -125,7 +134,12 @@ internal class MainWindow
         using var csvControl = new CsvWrapper<CsvMap, StrategyChromosome>("CONTROL");
         foreach (var batch in backtestBatches)
         {
-            Application.MainLoop.Invoke(() => { _txtBatch.Text = batch.Name; });
+            Application.MainLoop.Invoke(() =>
+            {
+                _txtBatch.Text = batch.Name;
+                _txtGeneration.Text = "0";
+                _txtFitness.Text = string.Empty;
+            });
 
             var ga = new GeneticAlgorithm(population, batch.ToFitness(_progressBar, apiPool), selection, crossover, mutation)
             {
