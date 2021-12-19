@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 using Terminal.Gui;
 
 namespace MMBotGA
@@ -11,9 +12,12 @@ namespace MMBotGA
 
             Application.Init();
 
-            new MainWindow(Application.Top).RunTask();
+            var window = new MainWindow(Application.Top);
 
-            Application.Run();
+            Task.WaitAll(
+                Task.Run(() => Application.Run()),
+                Task.Run(window.Run)
+            );
         }
     }
 }

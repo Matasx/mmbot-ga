@@ -106,11 +106,6 @@ internal class MainWindow
         return n == 0;
     }
 
-    public Task RunTask()
-    {
-        return Task.Run(Run);
-    }
-
     public void Run()
     {
         var apiPool = ApiDefinitions.GetLease();
