@@ -6,7 +6,7 @@ using MMBotGA.dto;
 
 namespace MMBotGA.ga.fitness
 {
-    internal static class FitnessEvaluators
+    internal static class FitnessFunctions
     {
         public static double RRR(ICollection<RunResponse> results)
         {

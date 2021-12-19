@@ -35,7 +35,7 @@ namespace MMBotGA.ga.fitness
         private async Task<double> EvaluateAsync(StrategyChromosome chromosome)
         {
             var request = chromosome.ToBacktestRequest();
-
+            
             chromosome.Metadata = "{{" + Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request.RunRequest.Config, _jsonOptions))) + "}}";
 
             var stopwatch = new Stopwatch();
@@ -43,7 +43,7 @@ namespace MMBotGA.ga.fitness
             var result = await _backtest.TestAsync(request);
             stopwatch.Stop();
 
-            chromosome.Statistics = StatisticsEvaluator.Evaluate(result.Data);
+            chromosome.Statistics = StatisticsEvaluator.Evaluate(request, result.Data);
 
             Application.MainLoop.Invoke(() =>
             {
