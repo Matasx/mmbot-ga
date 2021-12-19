@@ -8,15 +8,14 @@ namespace MMBotGA.ga.fitness
 {
     internal static class FitnessFunctionsMcx
     {
-        public static double LowerPositionOverall(BacktestRequest request, ICollection<RunResponse> results)
+        public static double LowerPositionOverall(BacktestRequest request, ICollection<RunResponse> results, double balancePercentage)
         {
-            const double balancePercentage = 0.05;
             var balanceEval = balancePercentage * request.RunRequest.Balance;
 
-            //All trades with position above 5% of balance
-            var tradesHighPosition = results.Where(x => x.Pr * x.Ps > balanceEval);
+            //All trades with position above x% of balance
+            var tradesHighPosition = results.Count(x => x.Pr * x.Ps > balanceEval);
 
-            var lowPosOverall = 1 - (double)tradesHighPosition.Count() / results.Count;
+            var lowPosOverall = 1 - (double)tradesHighPosition / results.Count;
             return lowPosOverall;
         }
 
@@ -142,12 +141,14 @@ namespace MMBotGA.ga.fitness
 
         public static double NpaRrr(BacktestRequest request, ICollection<RunResponse> results)
         {
-            //var nppyWeight = 0.00;
-            var pppyWeight = 0.10;
-            var ipdrWeight = 0.125;
-            var lpoWeight = 0.125;
-            var rrrWeight = 0.20;
-            var tradeCountWeight = 0.45;
+            //const double nppyWeight = 0.00;
+            const double pppyWeight = 0.15;
+            const double ipdrWeight = 0.20;
+            const double lpoWeight = 0.10;
+            const double rrrWeight = 0.05;
+            const double tradeCountWeight = 0.5;
+
+            const double balanceThreshold = 0.15;
 
 
             var nppyEval = 0; //nppyWeight * NormalizedProfitPerYear(request, results);
@@ -155,7 +156,7 @@ namespace MMBotGA.ga.fitness
             var rrrEval = rrrWeight * Rrr(results);
             var tradeCountEval = tradeCountWeight * TradeCountFactor(results);
             var ipdrEval = ipdrWeight * IncomePerDayRatio(results);
-            var lowerPosEval = lpoWeight * LowerPositionOverall(request, results);
+            var lowerPosEval = lpoWeight * LowerPositionOverall(request, results, balanceThreshold);
 
             var fitness = nppyEval + pppyEval + ipdrEval + rrrEval + tradeCountEval + lowerPosEval;
             Console.ForegroundColor = ConsoleColor.Green;
