@@ -84,7 +84,7 @@ namespace MMBotGA.data.provider
             var backtestRange = DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(-60), TimeSpan.FromDays(-365));
 
             return Allocations
-                .Select(x => new Batch($"{x.Exchange}/{x.Symbol}",
+                .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
                         downloader.GetBacktestData(new DownloadTask(x.Exchange, x.Symbol, backtestRange), false, x.Balance),
@@ -99,7 +99,7 @@ namespace MMBotGA.data.provider
             var backtestRange = DateTimeRange.FromUtcToday(TimeSpan.FromDays(-60));
 
             return Allocations
-                .Select(x => new Batch($"{x.Exchange}/{x.Symbol}",
+                .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
                         downloader.GetBacktestData(new DownloadTask(x.Exchange, x.Symbol, backtestRange), false, x.Balance)
