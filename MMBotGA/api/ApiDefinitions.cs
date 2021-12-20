@@ -1,19 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
-using MMBotGA.api;
+using MMBotGA.api.endpoints;
 
-namespace MMBotGA
+namespace MMBotGA.api
 {
     internal static class ApiDefinitions
     {
+        private static IEnumerable<ApiEndpoint> Endpoints => new JsonConfiguredApiEndpointProvider().GetApiEndpoints();
+
         public static ApiLease GetLease()
         {
-            return new ApiLease(
-                //RPi
-                CreateBackend(6, "http://192.168.1.150:10000/admin/api/", "user", "pass"),
-                //mtxs
-                CreateBackend(10, "http://192.168.1.170:20000/admin/api/", "user", "pass")
+            return new ApiLease(Endpoints
+                .Select(x => CreateBackend(x.LeaseCount, x.Url, x.Username, x.Password))
+                .ToArray()
             );
         }
 
@@ -26,7 +28,7 @@ namespace MMBotGA
                 MaxConnectionsPerServer = 20
             })
             {
-                Timeout = TimeSpan.FromMinutes(2)
+                Timeout = TimeSpan.FromSeconds(10)
             }));
         }
     }

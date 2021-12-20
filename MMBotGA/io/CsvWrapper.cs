@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration;
 
@@ -12,7 +13,7 @@ namespace MMBotGA.io
 
         public CsvWrapper(string name)
         {
-            var writer = new StreamWriter($"results-{name}-{DateTime.Now.ToString("s").Replace(':', '.')}.csv", false);
+            var writer = new StreamWriter(Sanitize($"results-{name}-{DateTime.Now.ToString("s").Replace(':', '.')}.csv"), false);
             _csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
             _csv.Context.RegisterClassMap<TMap>();
             _csv.WriteHeader<TRecord>();
@@ -30,6 +31,12 @@ namespace MMBotGA.io
         public void Dispose()
         {
             _csv?.Dispose();
+        }
+
+        private string Sanitize(string fileName)
+        {
+            return Path.GetInvalidFileNameChars()
+                .Aggregate(fileName, (current, ch) => current.Replace(ch.ToString(), "+"));
         }
     }
 }

@@ -8,6 +8,7 @@ using GeneticSharp.Domain.Mutations;
 using GeneticSharp.Domain.Populations;
 using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
+using MMBotGA.api;
 using MMBotGA.data.provider;
 using MMBotGA.ga;
 using MMBotGA.ga.abstraction;

@@ -10,7 +10,7 @@ namespace MMBotGA.data.provider
 {
     internal class FixedDataProvider : IDataProvider
     {
-        private IEnumerable<AllocationDefinition> AllocationDefinitions => new AllocationDefinition[]
+        private static IEnumerable<AllocationDefinition> AllocationDefinitions => new AllocationDefinition[]
         {
             new()
             {
@@ -46,6 +46,12 @@ namespace MMBotGA.data.provider
             {
                 Exchange = Exchange.Kucoin,
                 Pair = new Pair("LTC", "USDT"),
+                Balance = 10000
+            },
+            new()
+            {
+                Exchange = Exchange.Kucoin,
+                Pair = new Pair("FLUX", "USDT"),
                 Balance = 10000
             },
             new()
