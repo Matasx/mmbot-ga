@@ -2,14 +2,13 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Downloader.Core.Core;
 using GeneticSharp.Domain;
 using GeneticSharp.Domain.Crossovers;
 using GeneticSharp.Domain.Mutations;
 using GeneticSharp.Domain.Populations;
 using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
-using MMBotGA.downloader;
+using MMBotGA.data.provider;
 using MMBotGA.ga;
 using MMBotGA.ga.abstraction;
 using MMBotGA.ga.execution;
@@ -26,8 +25,6 @@ namespace MMBotGA
         private readonly TextField _txtFitness;
         private readonly ProgressDialog _progressDialog;
         private readonly ProgressBar _progressBar;
-
-        private readonly DefaultDownloader _downloader;
 
         public MainWindow(Toplevel top)
         {
@@ -97,7 +94,6 @@ namespace MMBotGA
             window.Add(lblGeneration, _txtGeneration, lblFitness, _txtFitness, lblbatch, _txtBatch, _progressBar);
 
             _progressDialog = new ProgressDialog(window);
-            _downloader = new DefaultDownloader(_progressDialog);
         }
 
         private static bool Quit()
@@ -111,8 +107,12 @@ namespace MMBotGA
             var apiPool = ApiDefinitions.GetLease();
             ThreadPool.SetMinThreads(apiPool.Available, apiPool.Available);
 
-            var backtestBatches = GetBatches(DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(-60), TimeSpan.FromDays(-365)));
-            var controlBatches = GetBatches(DateTimeRange.FromUtcToday(TimeSpan.FromDays(-60)));
+            //TODO: pick your data provider
+            var dataProvider = new FixedDataProvider();
+            //var dataProvider = new JsonConfiguredDataProvider();
+
+            var backtestBatches = dataProvider.GetBacktestData(_progressDialog);
+            var controlBatches = dataProvider.GetControlData(_progressDialog); 
 
             _progressDialog.Hide();
 
@@ -145,16 +145,16 @@ namespace MMBotGA
                     };
 
                     var best = RunGA(ga, batch.Name);
-                    if (best != null)
-                    {
-                        csvBacktest.WriteRecord(best);
 
-                        // Re-evaluate over control set
-                        var controlFitness =
-                            controlBatches.First(x => x.Name == batch.Name).ToFitness(_progressBar, apiPool);
-                        controlFitness.Evaluate(best);
-                        csvControl.WriteRecord(best);
-                    }
+                    if (best == null) continue;
+                    csvBacktest.WriteRecord(best);
+
+                    // Re-evaluate over control set
+                    var controlFitness = controlBatches.FirstOrDefault(x => x.Name == batch.Name)?.ToFitness(_progressBar, apiPool);
+                    if (controlFitness == null) continue;
+
+                    controlFitness.Evaluate(best);
+                    csvControl.WriteRecord(best);
                 }
             }
 
@@ -166,63 +166,6 @@ namespace MMBotGA
             });
 
             //Application.MainLoop.Invoke(() => MessageBox.Query("Information", "GA is finished.", "OK"));
-        }
-
-        private Batch[] GetBatches(DateTimeRange timeRange)
-        {
-            return new[]
-            {
-                new Batch("BTC-USDT", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "BTC-USDT", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "BTC-USDT", timeRange), true, 10000)
-                }),
-                new Batch("ETH-USDT", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "ETH-USDT", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "ETH-USDT", timeRange), true, 10000)
-                }),
-                new Batch("ZEC-USDT", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "ZEC-USDT", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "ZEC-USDT", timeRange), true, 10000)
-                }),
-                new Batch("XRP-USDT", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "XRP-USDT", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "XRP-USDT", timeRange), true, 10000)
-                }),
-                new Batch("FTM-USDT", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "FTM-USDT", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "FTM-USDT", timeRange), true, 10000)
-                }),
-                new Batch("LTC-USDT", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "LTC-USDT", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("KUCOIN", "LTC-USDT", timeRange), true, 10000)
-                }),
-                new Batch("AVAX-USDT", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("BINANCE", "AVAXUSDT", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("BINANCE", "AVAXUSDT", timeRange), true, 10000)
-                }),
-                new Batch("BNB-USDT", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("BINANCE", "BNBUSDT", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("BINANCE", "BNBUSDT", timeRange), true, 10000)
-                }),
-                new Batch("SOL-EUR", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("BINANCE", "SOLEUR", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("BINANCE", "SOLEUR", timeRange), true, 10000)
-                }),
-                new Batch("ADA-USDT", new[]
-                {
-                    _downloader.GetBacktestData(new DownloadTask("BINANCE", "ADAUSDT", timeRange), false, 10000),
-                    _downloader.GetBacktestData(new DownloadTask("BINANCE", "ADAUSDT", timeRange), true, 10000)
-                })
-            };
         }
 
         private StrategyChromosome RunGA(GeneticAlgorithm ga, string name)

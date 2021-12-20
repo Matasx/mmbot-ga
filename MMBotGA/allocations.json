@@ -1,0 +1,52 @@
+[
+  {
+    "Exchange": "KUCOIN",
+    "Symbol": "BTC-USDT",
+    "Balance": 10000.0
+  },
+  {
+    "Exchange": "KUCOIN",
+    "Symbol": "ETH-USDT",
+    "Balance": 10000.0
+  },
+  {
+    "Exchange": "KUCOIN",
+    "Symbol": "ZEC-USDT",
+    "Balance": 10000.0
+  },
+  {
+    "Exchange": "KUCOIN",
+    "Symbol": "XRP-USDT",
+    "Balance": 10000.0
+  },
+  {
+    "Exchange": "KUCOIN",
+    "Symbol": "FTM-USDT",
+    "Balance": 10000.0
+  },
+  {
+    "Exchange": "KUCOIN",
+    "Symbol": "LTC-USDT",
+    "Balance": 10000.0
+  },
+  {
+    "Exchange": "BINANCE",
+    "Symbol": "AVAXUSDT",
+    "Balance": 10000.0
+  },
+  {
+    "Exchange": "BINANCE",
+    "Symbol": "BNBUSDT",
+    "Balance": 10000.0
+  },
+  {
+    "Exchange": "BINANCE",
+    "Symbol": "SOLUSDT",
+    "Balance": 10000.0
+  },
+  {
+    "Exchange": "BINANCE",
+    "Symbol": "ADAUSDT",
+    "Balance": 10000.0
+  }
+]
