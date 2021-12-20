@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using GeneticSharp.Domain;
 using GeneticSharp.Domain.Crossovers;
 using GeneticSharp.Domain.Mutations;
@@ -25,7 +24,8 @@ namespace MMBotGA
         private readonly TextField _txtGeneration;
         private readonly TextField _txtFitness;
         private readonly ProgressDialog _progressDialog;
-        private readonly ProgressBar _progressBar;
+        private readonly ProgressBar _totalProgressBar;
+        private readonly ProgressBar _currentProgressBar;
 
         public MainWindow(Toplevel top)
         {
@@ -86,13 +86,19 @@ namespace MMBotGA
                 Width = _txtBatch.Width
             };
 
-            _progressBar = new ProgressBar
+            _totalProgressBar = new ProgressBar
             {
                 Y = Pos.Bottom(lblFitness) + 1,
                 Width = Dim.Fill()
             };
+            _currentProgressBar = new ProgressBar
+            {
+                Y = Pos.Bottom(_totalProgressBar),
+                Width = Dim.Fill()
+            };
 
-            window.Add(lblGeneration, _txtGeneration, lblFitness, _txtFitness, lblbatch, _txtBatch, _progressBar);
+            window.Add(lblGeneration, _txtGeneration, lblFitness, _txtFitness, lblbatch, _txtBatch, _totalProgressBar,
+                _currentProgressBar);
 
             _progressDialog = new ProgressDialog(window);
         }
@@ -129,8 +135,10 @@ namespace MMBotGA
             using (var csvBacktest = new CsvWrapper<CsvMap, StrategyChromosome>("BACKTEST"))
             using (var csvControl = new CsvWrapper<CsvMap, StrategyChromosome>("CONTROL"))
             {
+                var current = 0;
                 foreach (var batch in backtestBatches)
                 {
+                    current++;
                     Application.MainLoop.Invoke(() =>
                     {
                         _txtBatch.Text = batch.Name;
@@ -138,7 +146,7 @@ namespace MMBotGA
                         _txtFitness.Text = string.Empty;
                     });
 
-                    var ga = new GeneticAlgorithm(population, batch.ToFitness(_progressBar, apiPool), selection, crossover,
+                    var ga = new GeneticAlgorithm(population, batch.ToFitness(_currentProgressBar, apiPool), selection, crossover,
                         mutation)
                     {
                         Termination = termination,
@@ -146,12 +154,17 @@ namespace MMBotGA
                     };
 
                     var best = RunGA(ga, batch.Name);
+                    var progress = (float)current / backtestBatches.Length;
+                    Application.MainLoop.Invoke(() =>
+                    {
+                        _totalProgressBar.Fraction = progress;
+                    });
 
                     if (best == null) continue;
                     csvBacktest.WriteRecord(best);
 
                     // Re-evaluate over control set
-                    var controlFitness = controlBatches.FirstOrDefault(x => x.Name == batch.Name)?.ToFitness(_progressBar, apiPool);
+                    var controlFitness = controlBatches.FirstOrDefault(x => x.Name == batch.Name)?.ToFitness(_currentProgressBar, apiPool);
                     if (controlFitness == null) continue;
 
                     controlFitness.Evaluate(best);
