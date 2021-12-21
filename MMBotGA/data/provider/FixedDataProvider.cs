@@ -10,6 +10,8 @@ namespace MMBotGA.data.provider
 {
     internal class FixedDataProvider : IDataProvider
     {
+        private const string DataFolder = "data";
+
         protected virtual DataProviderSettings Settings => new()
         {
             Allocations = AllocationDefinitions.Select(x => x.ToAllocation()).ToArray(),
@@ -102,8 +104,8 @@ namespace MMBotGA.data.provider
                 .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
-                        downloader.GetBacktestData(new DownloadTask(x.Exchange, x.Symbol, backtestRange), false, x.Balance),
-                        downloader.GetBacktestData(new DownloadTask(x.Exchange, x.Symbol, backtestRange), true, x.Balance)
+                        downloader.GetBacktestData(new DownloadTask(DataFolder, x.Exchange, x.Symbol, backtestRange), false, x.Balance),
+                        downloader.GetBacktestData(new DownloadTask(DataFolder, x.Exchange, x.Symbol, backtestRange), true, x.Balance)
                     }))
                 .ToArray();
         }
@@ -119,7 +121,7 @@ namespace MMBotGA.data.provider
                 .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
-                        downloader.GetBacktestData(new DownloadTask(x.Exchange, x.Symbol, backtestRange), false, x.Balance)
+                        downloader.GetBacktestData(new DownloadTask(DataFolder, x.Exchange, x.Symbol, backtestRange), false, x.Balance)
                     }))
                 .ToArray();
         }
