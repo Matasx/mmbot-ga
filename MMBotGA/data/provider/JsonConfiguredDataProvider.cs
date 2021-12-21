@@ -6,7 +6,8 @@ namespace MMBotGA.data.provider
 {
     internal class JsonConfiguredDataProvider : FixedDataProvider
     {
-        protected override IEnumerable<Allocation> Allocations =>
-            JsonConvert.DeserializeObject<Allocation[]>(File.ReadAllText("allocations.json"));
+        protected override DataProviderSettings Settings =>
+            JsonConvert.DeserializeObject<DataProviderSettings>(File.ReadAllText("allocations.json"));
+            
     }
 }

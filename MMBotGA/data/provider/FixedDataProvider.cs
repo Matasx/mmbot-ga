@@ -10,6 +10,15 @@ namespace MMBotGA.data.provider
 {
     internal class FixedDataProvider : IDataProvider
     {
+        protected virtual DataProviderSettings Settings => new()
+        {
+            Allocations = AllocationDefinitions.Select(x => x.ToAllocation()).ToArray(),
+            DateSettings = new DataProviderDateSettings
+            {
+                Automatic = true
+            }
+        };
+
         private static IEnumerable<AllocationDefinition> AllocationDefinitions => new AllocationDefinition[]
         {
             new()
@@ -80,16 +89,16 @@ namespace MMBotGA.data.provider
             }
         };
 
-        protected virtual IEnumerable<Allocation> Allocations => AllocationDefinitions.Select(x => x.ToAllocation());
-
         public Batch[] GetBacktestData(IProgress progressCallback)
         {
-            //File.WriteAllText("allocations.json", JsonConvert.SerializeObject(Allocations, Formatting.Indented)); 
+            //File.WriteAllText("allocations.json", JsonConvert.SerializeObject(Settings, Formatting.Indented)); 
 
             var downloader = new DefaultDownloader(progressCallback);
-            var backtestRange = DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(-60), TimeSpan.FromDays(-365));
+            var backtestRange = Settings.DateSettings.Automatic
+                ? DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(-60), TimeSpan.FromDays(-365))
+                : Settings.DateSettings.Backtest;
 
-            return Allocations
+            return Settings.Allocations
                 .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
@@ -102,9 +111,11 @@ namespace MMBotGA.data.provider
         public Batch[] GetControlData(IProgress progressCallback)
         {
             var downloader = new DefaultDownloader(progressCallback);
-            var backtestRange = DateTimeRange.FromUtcToday(TimeSpan.FromDays(-60));
+            var backtestRange = Settings.DateSettings.Automatic
+                ? DateTimeRange.FromUtcToday(TimeSpan.FromDays(-60))
+                : Settings.DateSettings.Control;
 
-            return Allocations
+            return Settings.Allocations
                 .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
