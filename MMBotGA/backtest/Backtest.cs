@@ -123,30 +123,30 @@ namespace MMBotGA.backtest
 
             public async Task<BacktestResult<ICollection<RunResponse>>> TestAsync(BacktestRequest request)
             {
-                await CheckInitAsync();
-                return await EvaluateAsync(request);
-            }
-
-            private async Task<BacktestResult<ICollection<RunResponse>>> EvaluateAsync(BacktestRequest request)
-            {
                 for (var i = 0; i < 3; i++)
                 {
                     try
                     {
+                        await CheckInitAsync();
                         return await DoEvaluateAsync(request);
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
+                        await _semaphore.WaitAsync();
                         try
                         {
-                            await Task.Delay(5000);
-                            await InitAsync();
+                            _dataset = null;
                         }
                         catch (Exception ee)
                         {
                             Console.WriteLine(ee);
                         }
+                        finally
+                        {
+                            _semaphore.Release();
+                        }
+                        await Task.Delay(5000);
                     }
                 }
 
