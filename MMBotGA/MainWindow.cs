@@ -50,21 +50,21 @@ namespace MMBotGA
             });
             top.Add(menu);
 
-            var lblbatch = new Label("Batch: ")
+            var lblBatch = new Label("Batch: ")
             {
                 Width = 15
             };
             _txtBatch = new TextField
             {
                 ReadOnly = true,
-                X = Pos.Right(lblbatch),
-                Y = Pos.Top(lblbatch),
+                X = Pos.Right(lblBatch),
+                Y = Pos.Top(lblBatch),
                 Width = 15
             };
 
             var lblGeneration = new Label("Generation: ")
             {
-                Y = Pos.Bottom(lblbatch)
+                Y = Pos.Bottom(lblBatch)
             };
             _txtGeneration = new TextField
             {
@@ -97,7 +97,7 @@ namespace MMBotGA
                 Width = Dim.Fill()
             };
 
-            window.Add(lblGeneration, _txtGeneration, lblFitness, _txtFitness, lblbatch, _txtBatch, _totalProgressBar,
+            window.Add(lblGeneration, _txtGeneration, lblFitness, _txtFitness, lblBatch, _txtBatch, _totalProgressBar,
                 _currentProgressBar);
 
             _progressDialog = new ProgressDialog(window);
@@ -132,8 +132,7 @@ namespace MMBotGA
             var termination = new FitnessStagnationTermination(15);
             var executor = new ExactParallelTaskExecutor(apiPool.Available);
 
-            using (var csvBacktest = new CsvWrapper<CsvMap, StrategyChromosome>("BACKTEST"))
-            using (var csvControl = new CsvWrapper<CsvMap, StrategyChromosome>("CONTROL"))
+            using (var csvMerged = new CsvWrapper<CsvMap, StrategyChromosome>("MASTER"))
             {
                 var current = 0;
                 foreach (var batch in backtestBatches)
@@ -159,15 +158,18 @@ namespace MMBotGA
                     Application.MainLoop.Invoke(() => { _totalProgressBar.Fraction = progress; });
 
                     if (best == null) continue;
-                    csvBacktest.WriteRecord(best);
+                    best.BacktestStats = best.Statistics;
 
                     // Re-evaluate over control set
-                    var controlFitness = controlBatches.FirstOrDefault(x => x.Name == batch.Name)
+                    var controlFitness = controlBatches
+                        .FirstOrDefault(x => x.Name == batch.Name)
                         ?.ToFitness(_currentProgressBar, apiPool);
-                    if (controlFitness == null) continue;
-
-                    controlFitness.Evaluate(best);
-                    csvControl.WriteRecord(best);
+                    if (controlFitness != null)
+                    {
+                        controlFitness.Evaluate(best);
+                        best.ControlStats = best.Statistics;
+                    }
+                    csvMerged.WriteRecord(best);
                 }
             }
 

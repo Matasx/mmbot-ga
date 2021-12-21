@@ -25,7 +25,8 @@ namespace MMBotGA.io
             Map(x => x.DynMult).Index(15);
             Map(x => x.Metadata).Index(100);
 
-            References<StatisticsMap>(x => x.Statistics).Prefix("Stat.");
+            References<StatisticsMap>(x => x.BacktestStats).Prefix("BT_");
+            References<StatisticsMap>(x => x.ControlStats).Prefix("CT_");
         }
     }
 }

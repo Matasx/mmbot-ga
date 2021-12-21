@@ -46,6 +46,8 @@ namespace MMBotGA.ga
         public string Metadata { get; set; }
 
         public Statistics Statistics { get; set; }
+        public Statistics BacktestStats { get; set; }
+        public Statistics ControlStats { get; set; }
 
         public override Gene GenerateGene(int geneIndex)
         {
