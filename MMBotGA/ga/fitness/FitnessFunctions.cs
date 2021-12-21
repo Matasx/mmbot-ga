@@ -10,6 +10,8 @@ namespace MMBotGA.ga.fitness
     {
         public static double RRR(ICollection<RunResponse> results)
         {
+            if (results.Count < 1) return 0;
+
             double max_pl = 0, min_pl = 0, max_downdraw = 0;
             foreach (var trade in results)
             {
@@ -34,7 +36,7 @@ namespace MMBotGA.ga.fitness
 
         public static double TradeCountFactor(ICollection<RunResponse> results)
         {
-            if (results.Count < 0) return 0;
+            if (results.Count < 2) return 0;
             var last = results.Last();
             var first = results.First();
 

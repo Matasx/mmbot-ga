@@ -10,6 +10,8 @@ namespace MMBotGA.ga.fitness
     {
         public static double LowerPositionOverall(BacktestRequest request, ICollection<RunResponse> results, double balancePercentage)
         {
+            if (results.Count < 1) return 0;
+
             var balanceEval = balancePercentage * request.RunRequest.Balance;
 
             //All trades with position above x% of balance
@@ -21,6 +23,8 @@ namespace MMBotGA.ga.fitness
 
         public static double Rrr(ICollection<RunResponse> results)
         {
+            if (results.Count < 1) return 0;
+
             double maxPl = 0, minPl = 0, maxDowndraw = 0;
             foreach (var trade in results)
             {
@@ -39,14 +43,14 @@ namespace MMBotGA.ga.fitness
                     }
                 }
             }
-
+            
             var result = Math.Max(maxPl / maxDowndraw, 0);
             return Normalize(result, 5, 30, null);
         }
 
         public static double TradeCountFactor(ICollection<RunResponse> results)
         {
-            if (results.Count < 0) return 0;
+            if (results.Count < 2) return 0;
             var last = results.Last();
             var first = results.First();
 
