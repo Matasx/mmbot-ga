@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using MMBotGA.dto;
 
@@ -10,6 +12,11 @@ namespace MMBotGA.api
     {
         private readonly string _baseUrl;
         private readonly HttpClient _client;
+
+        private readonly JsonSerializerOptions _serializerOptions = new ()
+        {
+            Converters = {new DoubleConverter()}
+        };
 
         private string BackestUrl => _baseUrl + "backtest2/";
         private string BrokersUrl => _baseUrl + "brokers/";
@@ -28,7 +35,7 @@ namespace MMBotGA.api
 
             var result = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer.Deserialize<Minfo>(result);
+            return JsonSerializer.Deserialize<Minfo>(result, _serializerOptions);
         }
 
         public async Task<FileIdResponse> UploadAsync(string data)
@@ -39,7 +46,7 @@ namespace MMBotGA.api
 
             var result = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer.Deserialize<FileIdResponse>(result);
+            return JsonSerializer.Deserialize<FileIdResponse>(result, _serializerOptions);
         }
 
         public async Task<string> GetFileAsync(GetFileRequest request)
@@ -63,7 +70,7 @@ namespace MMBotGA.api
 
             var result = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer.Deserialize<FileIdResponse>(result);
+            return JsonSerializer.Deserialize<FileIdResponse>(result, _serializerOptions);
         }
 
         public async Task<IList<RunResponse>> RunAsync(RunRequest request)
@@ -76,7 +83,20 @@ namespace MMBotGA.api
 
             var result = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer.Deserialize<IList<RunResponse>>(result);
+            return JsonSerializer.Deserialize<IList<RunResponse>>(result, _serializerOptions);
+        }
+
+        private class DoubleConverter : JsonConverter<double>
+        {
+            public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                return reader.TokenType == JsonTokenType.Number ? reader.GetDouble() : double.NaN;
+            }
+
+            public override void Write(Utf8JsonWriter writer, double value, JsonSerializerOptions options)
+            {
+                writer.WriteNumberValue(value);
+            }
         }
     }
 }

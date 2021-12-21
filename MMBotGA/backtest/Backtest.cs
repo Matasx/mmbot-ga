@@ -150,7 +150,7 @@ namespace MMBotGA.backtest
                     }
                 }
 
-                return new BacktestResult<ICollection<RunResponse>>(default, default);
+                return new BacktestResult<ICollection<RunResponse>>(default, new List<RunResponse>());
             }
 
             private async Task<BacktestResult<ICollection<RunResponse>>> DoEvaluateAsync(BacktestRequest request)
@@ -159,7 +159,7 @@ namespace MMBotGA.backtest
                 var trades = await _api.GenerateTradesAsync(request.GenTradesRequest);
 
                 request.RunRequest.Source = trades.Id;
-                var response = await _api.RunAsync(request.RunRequest);
+                var response = await _api.RunAsync(request.RunRequest) ?? new List<RunResponse>();
 
                 return new BacktestResult<ICollection<RunResponse>>(_backtest._fitnessEvaluator(request, response), response);
             }

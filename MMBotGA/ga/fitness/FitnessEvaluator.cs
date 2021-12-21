@@ -34,24 +34,32 @@ namespace MMBotGA.ga.fitness
 
         private async Task<double> EvaluateAsync(StrategyChromosome chromosome)
         {
-            var request = chromosome.ToBacktestRequest();
-            
-            chromosome.Metadata = "{{" + Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request.RunRequest.Config, _jsonOptions))) + "}}";
-
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var result = await _backtest.TestAsync(request);
-            stopwatch.Stop();
-
-            chromosome.Statistics = StatisticsEvaluator.Evaluate(request, result.Data);
-
-            Application.MainLoop.Invoke(() =>
+            try
             {
-                _progressBar.Pulse();
-            });
+                var request = chromosome.ToBacktestRequest();
 
-            Console.WriteLine($"Done in {stopwatch.ElapsedMilliseconds} ms: {result.Fitness}");
-            return result.Fitness;
+                chromosome.Metadata = "{{" + Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request.RunRequest.Config, _jsonOptions))) + "}}";
+
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                var result = await _backtest.TestAsync(request);
+                stopwatch.Stop();
+
+                chromosome.Statistics = StatisticsEvaluator.Evaluate(request, result.Data);
+
+                Application.MainLoop.Invoke(() =>
+                {
+                    _progressBar.Pulse();
+                });
+
+                Console.WriteLine($"Done in {stopwatch.ElapsedMilliseconds} ms: {result.Fitness}");
+                return result.Fitness;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }
