@@ -38,8 +38,10 @@ namespace MMBotGA.ga.execution
                                     action();
                                     return;
                                 }
-                                catch
-                                { }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
+                                }
                             }
                         }
                         finally

@@ -103,7 +103,22 @@ namespace MMBotGA.backtest
 
             public async Task<Minfo> GetMinfoAsync()
             {
-                return await _api.GetInfoAsync(_backtest._data.Broker, _backtest._data.Pair);
+                Exception exception = null;
+                for (var i = 0; i < 3; i++)
+                {
+                    try
+                    {
+                        return await _api.GetInfoAsync(_backtest._data.Broker, _backtest._data.Pair);
+                    }
+                    catch (Exception e)
+                    {
+                        exception = e;
+                        Console.WriteLine(e);
+                        await Task.Delay(5000);
+                    }
+                }
+
+                throw exception;
             }
 
             public async Task<BacktestResult<ICollection<RunResponse>>> TestAsync(BacktestRequest request)

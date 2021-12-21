@@ -146,7 +146,8 @@ namespace MMBotGA
                         _txtFitness.Text = string.Empty;
                     });
 
-                    var ga = new GeneticAlgorithm(population, batch.ToFitness(_currentProgressBar, apiPool), selection, crossover,
+                    var ga = new GeneticAlgorithm(population, batch.ToFitness(_currentProgressBar, apiPool),
+                        selection, crossover,
                         mutation)
                     {
                         Termination = termination,
@@ -154,17 +155,15 @@ namespace MMBotGA
                     };
 
                     var best = RunGA(ga, batch.Name);
-                    var progress = (float)current / backtestBatches.Length;
-                    Application.MainLoop.Invoke(() =>
-                    {
-                        _totalProgressBar.Fraction = progress;
-                    });
+                    var progress = (float) current / backtestBatches.Length;
+                    Application.MainLoop.Invoke(() => { _totalProgressBar.Fraction = progress; });
 
                     if (best == null) continue;
                     csvBacktest.WriteRecord(best);
 
                     // Re-evaluate over control set
-                    var controlFitness = controlBatches.FirstOrDefault(x => x.Name == batch.Name)?.ToFitness(_currentProgressBar, apiPool);
+                    var controlFitness = controlBatches.FirstOrDefault(x => x.Name == batch.Name)
+                        ?.ToFitness(_currentProgressBar, apiPool);
                     if (controlFitness == null) continue;
 
                     controlFitness.Evaluate(best);
