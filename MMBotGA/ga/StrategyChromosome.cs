@@ -58,7 +58,8 @@ namespace MMBotGA.ga
                 2 => new Gene(RandomizationProvider.Current.GetInt(0, 5)),
                 3 => new Gene(RandomizationProvider.Current.GetDouble(1, 240)),
                 4 => new Gene(RandomizationProvider.Current.GetDouble(1, 240)),
-                5 => new Gene(RandomizationProvider.Current.GetDouble(0.5, 2)),
+                //0.5-2
+                5 => new Gene(RandomizationProvider.Current.GetDouble(0.95, 1.05)),
                 6 => new Gene(RandomizationProvider.Current.GetDouble(1, 1000)),
                 7 => new Gene(RandomizationProvider.Current.GetDouble(0.1, 10)),
                 8 => new Gene(RandomizationProvider.Current.GetDouble(0, 100)),
