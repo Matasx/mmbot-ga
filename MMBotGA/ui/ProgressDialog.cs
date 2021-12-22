@@ -11,6 +11,8 @@ namespace MMBotGA.ui
         private readonly ProgressBar _progressBar;
         private bool _visible;
         private readonly object _lock = new();
+        private readonly ColorScheme _baseColor;
+        private readonly ColorScheme _errorColor;
 
         public ProgressDialog(Window window)
         {
@@ -30,16 +32,26 @@ namespace MMBotGA.ui
                 Width = Dim.Fill(),
                 Height = 1
             };
+            _baseColor = _progressBar.ColorScheme;
+            _errorColor = new ColorScheme()
+            {
+                Normal = Attribute.Make(Color.Red, _baseColor.Normal.Background)
+            };
+
             _dialog.Add(_label, _progressBar);
         }
 
-        public void Report(string name, int current, int total)
+        public void Report(string name, int current, int total, bool? error)
         {
             Application.MainLoop.Invoke(() =>
             {
                 var percentage = (float) current / total;
                 _label.Text = $"{name} { (int)(percentage * 100)} %";
                 _progressBar.Fraction = percentage;
+                if (error.HasValue)
+                {
+                    _progressBar.ColorScheme = error.Value ? _errorColor : _baseColor;
+                }
             });
             Show();
         }

@@ -4,11 +4,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GeneticSharp.Infrastructure.Framework.Threading;
+using log4net;
 
 namespace MMBotGA.ga.execution
 {
     public class ExactParallelTaskExecutor : ParallelTaskExecutor
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ExactParallelTaskExecutor));
+
         private readonly int _degreeOfParallelism;
 
         public ExactParallelTaskExecutor(int degreeOfParallelism)
@@ -40,7 +43,7 @@ namespace MMBotGA.ga.execution
                                 }
                                 catch (Exception e)
                                 {
-                                    Console.WriteLine(e);
+                                    Log.Error($"Exception while executing GA action. Will retry ({2 - i}).", e);
                                 }
                             }
                         }

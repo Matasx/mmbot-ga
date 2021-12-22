@@ -7,14 +7,18 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Fitnesses;
+using log4net;
 using MMBotGA.backtest;
 using MMBotGA.dto;
+using MMBotGA.ga.execution;
 using Terminal.Gui;
 
 namespace MMBotGA.ga.fitness
 {
     class FitnessEvaluator : IFitness
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(FitnessEvaluator));
+
         private readonly ProgressBar _progressBar;
 
         private readonly JsonSerializerOptions _jsonOptions = new()
@@ -52,12 +56,12 @@ namespace MMBotGA.ga.fitness
                     _progressBar.Pulse();
                 });
 
-                Console.WriteLine($"Done in {stopwatch.ElapsedMilliseconds} ms: {result.Fitness}");
+                Log.Debug($"Done in {stopwatch.ElapsedMilliseconds} ms: {result.Fitness}");
                 return result.Fitness;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Log.Error($"Exception while evaluating fitness.", e);
                 throw;
             }
         }

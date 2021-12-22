@@ -26,6 +26,18 @@ namespace MMBotGA.data.provider
             new()
             {
                 Exchange = Exchange.Kucoin,
+                Pair = new Pair("KAVA", "USDT"),
+                Balance = 200
+            },
+            new()
+            {
+                Exchange = Exchange.Binance,
+                Pair = new Pair("LSK", "USDT"),
+                Balance = 200
+            },
+            new()
+            {
+                Exchange = Exchange.Kucoin,
                 Pair = new Pair("BTC", "USDT"),
                 Balance = 10000
             },

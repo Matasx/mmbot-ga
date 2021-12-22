@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 using MMBotGA.api;
 using MMBotGA.dto;
 using MMBotGA.ga.fitness;
@@ -11,6 +12,8 @@ namespace MMBotGA.backtest
 {
     internal class Backtest : IBacktest<ICollection<RunResponse>>
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(LoggingHandler));
+
         private readonly SemaphoreSlim _semaphore = new(1);
         private readonly ApiLease _api;
         private readonly BacktestData _data;
@@ -91,7 +94,7 @@ namespace MMBotGA.backtest
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        Log.Error($"Exception while initializing data. Will retry ({2 - i}).", e);
                         await Task.Delay(5000);
                     }
                     finally
@@ -113,7 +116,7 @@ namespace MMBotGA.backtest
                     catch (Exception e)
                     {
                         exception = e;
-                        Console.WriteLine(e);
+                        Log.Error($"Exception while getting exchange info. Will retry ({2 - i}).", e);
                         await Task.Delay(5000);
                     }
                 }
@@ -132,20 +135,10 @@ namespace MMBotGA.backtest
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        Log.Error($"Exception while backtesting. Will retry ({2 - i}).", e);
                         await _semaphore.WaitAsync();
-                        try
-                        {
-                            _dataset = null;
-                        }
-                        catch (Exception ee)
-                        {
-                            Console.WriteLine(ee);
-                        }
-                        finally
-                        {
-                            _semaphore.Release();
-                        }
+                        _dataset = null;
+                        _semaphore.Release();
                         await Task.Delay(5000);
                     }
                 }

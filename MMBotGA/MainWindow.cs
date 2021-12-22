@@ -132,7 +132,7 @@ namespace MMBotGA
             var termination = new FitnessStagnationTermination(15);
             var executor = new ExactParallelTaskExecutor(apiPool.Available);
 
-            using (var csvMerged = new CsvWrapper<CsvMap, StrategyChromosome>("MASTER"))
+            using (var csvMerged = new CsvWrapper<AggregatedChromosomeCsvMap, StrategyChromosome>("MASTER"))
             {
                 var current = 0;
                 foreach (var batch in backtestBatches)
@@ -185,7 +185,7 @@ namespace MMBotGA
 
         private StrategyChromosome RunGA(GeneticAlgorithm ga, string name)
         {
-            using var csv = new CsvWrapper<CsvMap, StrategyChromosome>(name);
+            using var csv = new CsvWrapper<SingleChromosomeCsvMap, StrategyChromosome>(name);
 
             StrategyChromosome lastBest = null;
 

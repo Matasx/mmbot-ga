@@ -3,9 +3,9 @@ using MMBotGA.ga;
 
 namespace MMBotGA.io
 {
-    internal class CsvMap : ClassMap<StrategyChromosome>
+    internal class ChromosomeCsvMapBase : ClassMap<StrategyChromosome>
     {
-        public CsvMap()
+        public ChromosomeCsvMapBase(bool aggregated)
         {
             Map(x => x.ID).Index(0);
             Map(x => x.Generation).Index(1);
@@ -25,8 +25,15 @@ namespace MMBotGA.io
             Map(x => x.DynMult).Index(15);
             Map(x => x.Metadata).Index(100);
 
-            References<StatisticsMap>(x => x.BacktestStats).Prefix("BT_");
-            References<StatisticsMap>(x => x.ControlStats).Prefix("CT_");
+            if (aggregated)
+            {
+                References<StatisticsMap>(x => x.BacktestStats).Prefix("BT_");
+                References<StatisticsMap>(x => x.ControlStats).Prefix("CT_");
+            }
+            else
+            {
+                References<StatisticsMap>(x => x.Statistics).Prefix("Stats_");
+            }
         }
     }
 }

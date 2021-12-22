@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using log4net;
 using MMBotGA.backtest;
 using MMBotGA.dto;
 
@@ -8,6 +9,8 @@ namespace MMBotGA.ga.fitness
 {
     internal static class FitnessFunctionsMcx
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(FitnessFunctionsMcx));
+
         public static double LowerPositionOverall(BacktestRequest request, ICollection<RunResponse> results, double balancePercentage)
         {
             if (results.Count < 1) return 0;
@@ -163,9 +166,8 @@ namespace MMBotGA.ga.fitness
             var lowerPosEval = lpoWeight * LowerPositionOverall(request, results, balanceThreshold);
 
             var fitness = nppyEval + pppyEval + ipdrEval + rrrEval + tradeCountEval + lowerPosEval;
-            Console.ForegroundColor = ConsoleColor.Green;
-            //Console.WriteLine($"Fitness : {fitness}, PnLProfitPerYear : {pppyEval}, NormalizedProfitPerYear : {nppyEval}, IncomePerDayRatio : {ipdrEval}, TradeCountFactor : {tradeCountEval}");
-            Console.WriteLine($"Fitness : {fitness}, IPDR : {ipdrEval}, LPO : {lowerPosEval}");
+
+            Log.Debug($"Fitness : {fitness}, IPDR : {ipdrEval}, LPO : {lowerPosEval}");
 
             return fitness;
         }
