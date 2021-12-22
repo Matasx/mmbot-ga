@@ -9,11 +9,29 @@ namespace MMBotGA.io
 {
     internal class CsvWrapper<TMap, TRecord> : IDisposable where TMap : ClassMap
     {
+        private static string _directory;
         private readonly CsvWriter _csv;
+
+        private static string Directory 
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(_directory)) return _directory;
+
+                var dir = Path.Combine("results", DateTime.Now.ToString("s").Replace(':', '.'));
+                var directory = new DirectoryInfo(dir);
+                if (!directory.Exists) directory.Create();
+                _directory = directory.FullName;
+                return _directory;
+            }
+        }
 
         public CsvWrapper(string name)
         {
-            var writer = new StreamWriter(Sanitize($"results-{name}-{DateTime.Now.ToString("s").Replace(':', '.')}.csv"), false);
+            var filename = Sanitize($"results-{name}.csv");
+            var fullPath = Path.Combine(Directory, filename);
+
+            var writer = new StreamWriter(fullPath, false);
             _csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
             _csv.Context.RegisterClassMap<TMap>();
             _csv.WriteHeader<TRecord>();
