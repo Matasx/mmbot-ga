@@ -49,7 +49,7 @@ namespace MMBotGA.ga.fitness
                 var result = await _backtest.TestAsync(request);
                 stopwatch.Stop();
 
-                chromosome.Statistics = StatisticsEvaluator.Evaluate(request, result.Data);
+                chromosome.Statistics = StatisticsEvaluator.Evaluate(request, result.Data ?? new List<RunResponse>());
 
                 Application.MainLoop.Invoke(() =>
                 {
