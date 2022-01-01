@@ -26,7 +26,7 @@ namespace MMBotGA.data.provider
             new()
             {
                 Exchange = Exchange.Kucoin,
-                Pair = new Pair("KAVA", "USDT"),
+                Pair = new Pair("DOT", "USDT"),
                 Balance = 200
             },
             new()
@@ -39,67 +39,67 @@ namespace MMBotGA.data.provider
             {
                 Exchange = Exchange.Kucoin,
                 Pair = new Pair("BTC", "USDT"),
-                Balance = 10000
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Kucoin,
                 Pair = new Pair("ETH", "USDT"),
-                Balance = 10000
+                Balance = 1000
             },
             new()
             {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("ZEC", "USDT"),
-                Balance = 10000
+                Exchange = Exchange.Bitfinex,
+                Pair = new Pair("ZEC", "USD"),
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Kucoin,
                 Pair = new Pair("XRP", "USDT"),
-                Balance = 10000
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Kucoin,
                 Pair = new Pair("FTM", "USDT"),
-                Balance = 10000
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Kucoin,
                 Pair = new Pair("LTC", "USDT"),
-                Balance = 10000
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Kucoin,
                 Pair = new Pair("FLUX", "USDT"),
-                Balance = 10000
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Binance,
                 Pair = new Pair("AVAX", "USDT"),
-                Balance = 10000
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Binance,
                 Pair = new Pair("BNB", "USDT"),
-                Balance = 10000
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Binance,
                 Pair = new Pair("SOL", "USDT"),
-                Balance = 10000
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Binance,
                 Pair = new Pair("ADA", "USDT"),
-                Balance = 10000
+                Balance = 1000
             }
         };
 
@@ -116,8 +116,8 @@ namespace MMBotGA.data.provider
                 .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
-                        downloader.GetBacktestData(new DownloadTask(DataFolder, x.Exchange, x.Symbol, backtestRange), false, x.Balance),
-                        downloader.GetBacktestData(new DownloadTask(DataFolder, x.Exchange, x.Symbol, backtestRange), true, x.Balance)
+                        downloader.GetBacktestData(DataFolder, backtestRange, x, false, x.Balance),
+                        downloader.GetBacktestData(DataFolder, backtestRange, x, true, x.Balance)
                     }))
                 .ToArray();
         }
@@ -125,7 +125,7 @@ namespace MMBotGA.data.provider
         public Batch[] GetControlData(IProgress progressCallback)
         {
             var downloader = new DefaultDownloader(progressCallback);
-            var backtestRange = Settings.DateSettings.Automatic
+            var controlRange = Settings.DateSettings.Automatic
                 ? DateTimeRange.FromUtcToday(TimeSpan.FromDays(-60))
                 : Settings.DateSettings.Control;
 
@@ -133,7 +133,7 @@ namespace MMBotGA.data.provider
                 .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
-                        downloader.GetBacktestData(new DownloadTask(DataFolder, x.Exchange, x.Symbol, backtestRange), false, x.Balance)
+                        downloader.GetBacktestData(DataFolder, controlRange, x, false, x.Balance)
                     }))
                 .ToArray();
         }

@@ -1,5 +1,6 @@
 ﻿using Downloader.Core.Core;
 using MMBotGA.backtest;
+using MMBotGA.data;
 
 namespace MMBotGA.downloader
 {
@@ -11,14 +12,16 @@ namespace MMBotGA.downloader
             return downloadTask.ToFileName();
         }
 
-        public static BacktestData GetBacktestData(this DefaultDownloader downloader, DownloadTask downloadTask,
+        public static BacktestData GetBacktestData(this DefaultDownloader downloader, string dataFolder, DateTimeRange range, Allocation allocation,
             bool reverse, double balance)
         {
+            var task = new DownloadTask(dataFolder, allocation.Exchange, allocation.Symbol, range);
+
             return new BacktestData
             {
-                Broker = downloadTask.Exchange.ToLower(),
-                Pair = downloadTask.Symbol, // Get broker pair info: /admin/api/brokers/kucoin/pairs
-                SourceFile = downloader.GetFile(downloadTask),
+                Broker = task.Exchange.ToLower(),
+                Pair = allocation.RobotSymbol, // Get broker pair info: /admin/api/brokers/kucoin/pairs
+                SourceFile = downloader.GetFile(task),
                 Reverse = reverse,
                 Balance = balance
             };

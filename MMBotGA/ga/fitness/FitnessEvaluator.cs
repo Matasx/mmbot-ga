@@ -10,7 +10,6 @@ using GeneticSharp.Domain.Fitnesses;
 using log4net;
 using MMBotGA.backtest;
 using MMBotGA.dto;
-using MMBotGA.ga.execution;
 using Terminal.Gui;
 
 namespace MMBotGA.ga.fitness
@@ -61,7 +60,7 @@ namespace MMBotGA.ga.fitness
             }
             catch (Exception e)
             {
-                Log.Error($"Exception while evaluating fitness.", e);
+                Log.Error("Exception while evaluating fitness.", e);
                 throw;
             }
         }
