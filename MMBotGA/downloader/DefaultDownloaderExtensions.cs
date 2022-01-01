@@ -20,7 +20,7 @@ namespace MMBotGA.downloader
             return new BacktestData
             {
                 Broker = task.Exchange.ToLower(),
-                Pair = allocation.RobotSymbol, // Get broker pair info: /admin/api/brokers/kucoin/pairs
+                Pair = allocation.RobotSymbol ?? allocation.Symbol, // Get broker pair info: /admin/api/brokers/kucoin/pairs
                 SourceFile = downloader.GetFile(task),
                 Reverse = reverse,
                 Balance = allocation.Balance
