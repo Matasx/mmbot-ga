@@ -27,13 +27,13 @@ namespace MMBotGA.data.provider
             {
                 Exchange = Exchange.Kucoin,
                 Pair = new Pair("DOT", "USDT"),
-                Balance = 200
+                Balance = 1000
             },
             new()
             {
                 Exchange = Exchange.Binance,
                 Pair = new Pair("LSK", "USDT"),
-                Balance = 200
+                Balance = 1000
             },
             new()
             {
@@ -116,8 +116,8 @@ namespace MMBotGA.data.provider
                 .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
-                        downloader.GetBacktestData(DataFolder, backtestRange, x, false, x.Balance),
-                        downloader.GetBacktestData(DataFolder, backtestRange, x, true, x.Balance)
+                        downloader.GetBacktestData(x, DataFolder, backtestRange, false),
+                        downloader.GetBacktestData(x, DataFolder, backtestRange, true)
                     }))
                 .ToArray();
         }
@@ -133,7 +133,7 @@ namespace MMBotGA.data.provider
                 .Select(x => new Batch(x.ToBatchName(),
                     new[]
                     {
-                        downloader.GetBacktestData(DataFolder, controlRange, x, false, x.Balance)
+                        downloader.GetBacktestData(x, DataFolder, controlRange, false)
                     }))
                 .ToArray();
         }

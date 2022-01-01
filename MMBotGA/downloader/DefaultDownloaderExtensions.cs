@@ -12,8 +12,8 @@ namespace MMBotGA.downloader
             return downloadTask.ToFileName();
         }
 
-        public static BacktestData GetBacktestData(this DefaultDownloader downloader, string dataFolder, DateTimeRange range, Allocation allocation,
-            bool reverse, double balance)
+        public static BacktestData GetBacktestData(this DefaultDownloader downloader, Allocation allocation, string dataFolder, DateTimeRange range,
+            bool reverse)
         {
             var task = new DownloadTask(dataFolder, allocation.Exchange, allocation.Symbol, range);
 
@@ -23,7 +23,7 @@ namespace MMBotGA.downloader
                 Pair = allocation.RobotSymbol, // Get broker pair info: /admin/api/brokers/kucoin/pairs
                 SourceFile = downloader.GetFile(task),
                 Reverse = reverse,
-                Balance = balance
+                Balance = allocation.Balance
             };
         }
     }
