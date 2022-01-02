@@ -6,12 +6,6 @@ namespace MMBotGA.downloader
 {
     internal static class DefaultDownloaderExtensions
     {
-        public static string GetFile(this DefaultDownloader downloader, DownloadTask downloadTask)
-        {
-            downloader.Download(downloadTask);
-            return downloadTask.ToFileName();
-        }
-
         public static BacktestData GetBacktestData(this DefaultDownloader downloader, Allocation allocation, string dataFolder, DateTimeRange range,
             bool reverse)
         {
@@ -21,7 +15,7 @@ namespace MMBotGA.downloader
             {
                 Broker = task.Exchange.ToLower(),
                 Pair = allocation.RobotSymbol ?? allocation.Symbol, // Get broker pair info: /admin/api/brokers/kucoin/pairs
-                SourceFile = downloader.GetFile(task),
+                SourceFile = downloader.Download(task),
                 Reverse = reverse,
                 Balance = allocation.Balance
             };

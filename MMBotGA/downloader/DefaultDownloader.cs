@@ -24,9 +24,9 @@ namespace MMBotGA.downloader
             });
         }
 
-        public void Download(DownloadTask downloadTask)
+        public string Download(DownloadTask downloadTask)
         {
-            _downloadOrchestrator.Download(downloadTask);
+            return _downloadOrchestrator.Download(downloadTask);
         }
     }
 }
