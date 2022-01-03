@@ -37,7 +37,7 @@ namespace MMBotGA.api
 
             return new LeasableApi(leaseCount, new Api(url, new HttpClient(handler)
             {
-                Timeout = TimeSpan.FromSeconds(10)
+                Timeout = TimeSpan.FromSeconds(60)
             }));
         }
     }

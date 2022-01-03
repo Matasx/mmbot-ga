@@ -4,7 +4,7 @@
     {
         public static string ToBatchName(this Allocation allocation)
         {
-            return $"{allocation.Exchange}/{allocation.Symbol}";
+            return $"{allocation.Symbol}@{allocation.Exchange}";
         }
     }
 }

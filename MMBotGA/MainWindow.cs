@@ -59,7 +59,7 @@ namespace MMBotGA
                 ReadOnly = true,
                 X = Pos.Right(lblBatch),
                 Y = Pos.Top(lblBatch),
-                Width = 15
+                Width = 30
             };
 
             var lblGeneration = new Label("Generation: ")
