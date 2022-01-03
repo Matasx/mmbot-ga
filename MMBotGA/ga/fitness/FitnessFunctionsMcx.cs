@@ -87,6 +87,11 @@ namespace MMBotGA.ga.fitness
 
             var totalDays = (lastResult.Tm - firstResult.Tm) / 86400000;
 
+            if (totalDays <= 0)
+            {
+                return 0;
+            }
+
             var backtestStartingPoint = firstResult.Tm;
 
             var goodDay = 0;
