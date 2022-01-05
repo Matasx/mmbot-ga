@@ -17,7 +17,7 @@ namespace MMBotGA.ga
         public double Trend => this.GetGene<double>(1);
         public int Rebalance => this.GetGene<int>(2);
 
-        readonly string[] functions = new[] { "halfhalf", "keepvalue", "exponencial", "invsqrtsinh", "gauss" };
+        readonly string[] functions = { "halfhalf", "keepvalue", "gauss" }; //"exponencial", "invsqrtsinh"
         public string Function => functions[this.GetGene<int>(10)];
 
         #endregion
@@ -31,7 +31,7 @@ namespace MMBotGA.ga
         public double Fall => this.GetGene<double>(7);
         public double Cap => this.GetGene<double>(8);
 
-        readonly string[] modes = new[] { "disabled", "independent", "together", "alternate", "half_alternate" };
+        readonly string[] modes = { "disabled", "independent", "together", "alternate", "half_alternate" };
         public string Mode => modes[this.GetGene<int>(9)];
 
         public bool DynMult => this.GetGene<int>(11) == 1;
@@ -55,16 +55,17 @@ namespace MMBotGA.ga
             { // max is exclusive
                 0 => new Gene(RandomizationProvider.Current.GetDouble(1, 20)),
                 1 => new Gene(RandomizationProvider.Current.GetDouble(-100, 100)),
-                2 => new Gene(RandomizationProvider.Current.GetInt(0, 5)),
+                2 => new Gene(RandomizationProvider.Current.GetInt(3, 5)), //0-5
                 3 => new Gene(RandomizationProvider.Current.GetDouble(1, 240)),
                 4 => new Gene(RandomizationProvider.Current.GetDouble(1, 240)),
                 //0.5-2
-                5 => new Gene(RandomizationProvider.Current.GetDouble(0.95, 1.05)),
+                5 => new Gene(RandomizationProvider.Current.GetDouble(0.5, 2)),
+                //5 => new Gene(RandomizationProvider.Current.GetDouble(0.95, 1.05)),
                 6 => new Gene(RandomizationProvider.Current.GetDouble(1, 1000)),
                 7 => new Gene(RandomizationProvider.Current.GetDouble(0.1, 10)),
                 8 => new Gene(RandomizationProvider.Current.GetDouble(0, 100)),
                 9 => new Gene(RandomizationProvider.Current.GetInt(0, 5)),
-                10 => new Gene(RandomizationProvider.Current.GetInt(0, 5)),
+                10 => new Gene(RandomizationProvider.Current.GetInt(0, 3)),
                 11 => new Gene(RandomizationProvider.Current.GetInt(0, 2)),
                 12 => new Gene(RandomizationProvider.Current.GetInt(0, 2)),
                 _ => new Gene(),

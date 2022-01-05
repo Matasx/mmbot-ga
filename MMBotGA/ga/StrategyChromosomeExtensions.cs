@@ -39,7 +39,7 @@ namespace MMBotGA.ga
                     Invert = false,
                     NegBal = false,
                     InitPrice = 0,
-                    Spend = false,
+                    Spend = true,
                     Config = new Config
                     {
                         Strategy = new Strategy
@@ -47,7 +47,7 @@ namespace MMBotGA.ga
                             Type = "gamma",
                             Function = chromosome.Function,
                             Trend = chromosome.Trend,
-                            Reinvest = true,
+                            Reinvest = false,
 
                             Exponent = chromosome.Exponent,
                             Rebalance = chromosome.Rebalance.ToString()
