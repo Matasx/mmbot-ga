@@ -6,13 +6,12 @@ namespace MMBotGA.ga
 {
     class StrategyChromosome : ChromosomeBase
     {
-        private const int Genes = 13;
         private readonly GeneFactory _factory;
 
         public StrategyChromosome()
-            : base(Genes)
+            : base(2)
         {
-            _factory = new GeneFactory(this, Genes);
+            _factory = new GeneFactory(this);
 
             // max is exclusive
             Exponent = _factory.Create(() => RandomizationProvider.Current.GetDouble(1, 20));
@@ -29,7 +28,7 @@ namespace MMBotGA.ga
             DynMultGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
             FreezeGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
 
-            _factory.Validate();
+            Resize(_factory.Length);
             CreateGenes();
         }
 
