@@ -63,8 +63,8 @@ namespace MMBotGA.ga.fitness
             var days = (last.Tm - first.Tm) / 86400000d;
             var tradesPerDay = trades / days;
 
-            const int mean = 10;
-            const int delta = 5; // target trade range is 5 - 15 trades per day
+            const int mean = 6;
+            const int delta = 3; // target trade range is 5 - 15 trades per day
 
             var x = Math.Abs(tradesPerDay - mean); // 0 - inf, 0 is best
             var y = Math.Max(x - delta, 0) + 1; // 1 - inf, 1 is best ... 

@@ -7,6 +7,7 @@ using MMBotGA.api;
 using MMBotGA.dto;
 using MMBotGA.ga.fitness;
 using MMBotGA.io;
+using MMBotGA.utils;
 
 namespace MMBotGA.backtest
 {
@@ -51,6 +52,13 @@ namespace MMBotGA.backtest
                 }
                 request.RunRequest.Minfo = _minfo;
                 request.RunRequest.Balance = _data.Balance;
+                request.GenTradesRequest.Limit = _data.Limit;
+                request.GenTradesRequest.Offset = _data.Offset;
+                if (_data.Start.HasValue)
+                {
+                    request.GenTradesRequest.BeginTime = UnixEpoch.GetEpochMs(_data.Start.Value);
+                }
+
                 return await context.TestAsync(request);
             }
             finally
