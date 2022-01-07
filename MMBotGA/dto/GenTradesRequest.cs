@@ -57,5 +57,14 @@ namespace MMBotGA.dto
 
         [JsonPropertyName("order2")]
         public int Order2 { get; set; }
+
+        [JsonPropertyName("offset")]
+        public int? Offset { get; set; }
+
+        [JsonPropertyName("limit")]
+        public int? Limit { get; set; }
+
+        [JsonPropertyName("begin_time")]
+        public long? BeginTime { get; set; }
     }
 }
