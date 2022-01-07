@@ -6,36 +6,64 @@ namespace MMBotGA.ga
 {
     class StrategyChromosome : ChromosomeBase
     {
+        private const int Genes = 13;
+        private readonly GeneFactory _factory;
+
         public StrategyChromosome()
-            : base(13)
+            : base(Genes)
         {
+            _factory = new GeneFactory(this, Genes);
+
+            // max is exclusive
+            Exponent = _factory.Create(() => RandomizationProvider.Current.GetDouble(1, 20));
+            Trend = _factory.Create(() => RandomizationProvider.Current.GetDouble(-100, 100));
+            Rebalance = _factory.Create(() => RandomizationProvider.Current.GetInt(3, 5)); // 0-5
+            FunctionGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 3));
+            Stdev = _factory.Create(() => RandomizationProvider.Current.GetDouble(1, 240));
+            Sma = _factory.Create(() => RandomizationProvider.Current.GetDouble(1, 240));
+            Mult = _factory.Create(() => RandomizationProvider.Current.GetDouble(0.5, 2)); // 0.95 - 1.05
+            Raise = _factory.Create(() => RandomizationProvider.Current.GetDouble(1, 1000));
+            Fall = _factory.Create(() => RandomizationProvider.Current.GetDouble(0.1, 10));
+            Cap = _factory.Create(() => RandomizationProvider.Current.GetDouble(0, 100));
+            ModeGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 5));
+            DynMultGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
+            FreezeGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
+
+            _factory.Validate();
             CreateGenes();
         }
 
         #region Strategy
-        public double Exponent => this.GetGene<double>(0);
-        public double Trend => this.GetGene<double>(1);
-        public int Rebalance => this.GetGene<int>(2);
 
-        readonly string[] functions = { "halfhalf", "keepvalue", "gauss" }; //"exponencial", "invsqrtsinh"
-        public string Function => functions[this.GetGene<int>(10)];
+        public GeneWrapper<double> Exponent { get; }
+    
+        public GeneWrapper<double> Trend { get; }
+        public GeneWrapper<int> Rebalance { get; }
+
+        private readonly string[] _functions = { "halfhalf", "keepvalue", "gauss" }; //"exponencial", "invsqrtsinh"
+        private GeneWrapper<int> FunctionGene { get; }
+        public string Function => _functions[FunctionGene.Value];
 
         #endregion
 
         #region Spread
 
-        public double Stdev => this.GetGene<double>(3);
-        public double Sma => this.GetGene<double>(4);
-        public double Mult => this.GetGene<double>(5);
-        public double Raise => this.GetGene<double>(6);
-        public double Fall => this.GetGene<double>(7);
-        public double Cap => this.GetGene<double>(8);
+        public GeneWrapper<double> Stdev { get; }
+        public GeneWrapper<double> Sma { get; }
+        public GeneWrapper<double> Mult { get; }
+        public GeneWrapper<double> Raise { get; }
+        public GeneWrapper<double> Fall { get; }
+        public GeneWrapper<double> Cap { get; }
 
-        readonly string[] modes = { "disabled", "independent", "together", "alternate", "half_alternate" };
-        public string Mode => modes[this.GetGene<int>(9)];
+        private readonly string[] _modes = { "disabled", "independent", "together", "alternate", "half_alternate" };
+        private GeneWrapper<int> ModeGene { get; }
+        public string Mode => _modes[ModeGene.Value];
 
-        public bool DynMult => this.GetGene<int>(11) == 1;
-        public bool Freeze => this.GetGene<int>(12) == 1;
+        private GeneWrapper<int> DynMultGene { get; }
+        public bool DynMult => DynMultGene.Value == 1;
+
+        private GeneWrapper<int> FreezeGene { get; }
+        public bool Freeze => FreezeGene.Value == 1;
 
         #endregion
 
@@ -49,32 +77,8 @@ namespace MMBotGA.ga
         public Statistics BacktestStats { get; set; }
         public Statistics ControlStats { get; set; }
 
-        public override Gene GenerateGene(int geneIndex)
-        {
-            return geneIndex switch
-            { // max is exclusive
-                0 => new Gene(RandomizationProvider.Current.GetDouble(1, 20)),
-                1 => new Gene(RandomizationProvider.Current.GetDouble(-100, 100)),
-                2 => new Gene(RandomizationProvider.Current.GetInt(3, 5)), //0-5
-                3 => new Gene(RandomizationProvider.Current.GetDouble(1, 240)),
-                4 => new Gene(RandomizationProvider.Current.GetDouble(1, 240)),
-                //0.5-2
-                5 => new Gene(RandomizationProvider.Current.GetDouble(0.5, 2)),
-                //5 => new Gene(RandomizationProvider.Current.GetDouble(0.95, 1.05)),
-                6 => new Gene(RandomizationProvider.Current.GetDouble(1, 1000)),
-                7 => new Gene(RandomizationProvider.Current.GetDouble(0.1, 10)),
-                8 => new Gene(RandomizationProvider.Current.GetDouble(0, 100)),
-                9 => new Gene(RandomizationProvider.Current.GetInt(0, 5)),
-                10 => new Gene(RandomizationProvider.Current.GetInt(0, 3)),
-                11 => new Gene(RandomizationProvider.Current.GetInt(0, 2)),
-                12 => new Gene(RandomizationProvider.Current.GetInt(0, 2)),
-                _ => new Gene(),
-            };
-        }
+        public override Gene GenerateGene(int geneIndex) => _factory.Generate(geneIndex);
 
-        public override IChromosome CreateNew()
-        {
-            return new StrategyChromosome();
-        }
+        public override IChromosome CreateNew() => new StrategyChromosome();
     }
 }

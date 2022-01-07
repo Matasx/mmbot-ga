@@ -1,4 +1,8 @@
-﻿using CsvHelper.Configuration;
+﻿using System;
+using System.Linq.Expressions;
+using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.TypeConversion;
 using MMBotGA.ga;
 
 namespace MMBotGA.io
@@ -33,6 +37,33 @@ namespace MMBotGA.io
             else
             {
                 References<StatisticsMap>(x => x.Statistics).Prefix("Stats_");
+            }
+        }
+
+        private MemberMap<StrategyChromosome, GeneWrapper<TMember>> Map<TMember>(Expression<Func<StrategyChromosome, GeneWrapper<TMember>>> expression, bool useExistingMap = true)
+        {
+            var result = base.Map(expression, useExistingMap);
+            var type = typeof(TMember);
+
+            if (type == typeof(double)) return result.TypeConverter<DoubleGeneConverter>();
+            if (type == typeof(int)) return result.TypeConverter<IntGeneConverter>();
+
+            throw new NotSupportedException($"Type of gene {type} is not supported for writing to csv.");
+        }
+
+        private class DoubleGeneConverter : DoubleConverter
+        {
+            public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+            {
+                return base.ConvertToString((double)(GeneWrapper<double>)value, row, memberMapData);
+            }
+        }
+
+        private class IntGeneConverter : DoubleConverter
+        {
+            public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+            {
+                return base.ConvertToString((int)(GeneWrapper<int>)value, row, memberMapData);
             }
         }
     }
