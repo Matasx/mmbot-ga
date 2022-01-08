@@ -24,5 +24,10 @@ namespace MMBotGA.ga
         }
 
         public static implicit operator T(GeneWrapper<T> gene) => gene.Value;
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }
