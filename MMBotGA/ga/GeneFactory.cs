@@ -27,6 +27,11 @@ namespace MMBotGA.ga
             return gene;
         }
 
+        public GeneWrapper<T> Create<T>(T staticValue)
+        {
+            return new StaticGeneWrapper<T>(staticValue);
+        }
+
         public Gene Generate(int index)
         {
             return _genes[index].Generate();

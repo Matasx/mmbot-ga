@@ -28,6 +28,9 @@ namespace MMBotGA.ga
             DynMultGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
             FreezeGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
 
+            //Static gene example:
+            //Trend = _factory.Create(0d);
+
             Resize(_factory.Length);
             CreateGenes();
         }

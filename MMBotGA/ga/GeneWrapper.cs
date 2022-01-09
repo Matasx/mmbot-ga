@@ -16,7 +16,7 @@ namespace MMBotGA.ga
             _index = index;
         }
 
-        public T Value => _parent.GetGene<T>(_index);
+        public virtual T Value => _parent.GetGene<T>(_index);
 
         public Gene Generate()
         {
