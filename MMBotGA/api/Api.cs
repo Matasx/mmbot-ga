@@ -15,7 +15,8 @@ namespace MMBotGA.api
 
         private readonly JsonSerializerOptions _serializerOptions = new ()
         {
-            Converters = {new DoubleConverter()}
+            Converters = { new DoubleConverter() },
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
         private string BackestUrl => _baseUrl + "backtest2/";
@@ -51,7 +52,7 @@ namespace MMBotGA.api
 
         public async Task<string> GetFileAsync(GetFileRequest request)
         {
-            var content = JsonSerializer.Serialize(request);
+            var content = JsonSerializer.Serialize(request, _serializerOptions);
 
             using var response = await _client.PostAsync(BackestUrl + "get_file", new StringContent(content));
 
@@ -62,7 +63,7 @@ namespace MMBotGA.api
 
         public async Task<FileIdResponse> GenerateTradesAsync(GenTradesRequest request)
         {
-            var content = JsonSerializer.Serialize(request);
+            var content = JsonSerializer.Serialize(request, _serializerOptions);
 
             using var response = await _client.PostAsync(BackestUrl + "gen_trades", new StringContent(content));
 
@@ -75,7 +76,7 @@ namespace MMBotGA.api
 
         public async Task<IList<RunResponse>> RunAsync(RunRequest request)
         {
-            var content = JsonSerializer.Serialize(request);
+            var content = JsonSerializer.Serialize(request, _serializerOptions);
 
             using var response = await _client.PostAsync(BackestUrl + "run", new StringContent(content));
 
