@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using log4net;
 using MMBotGA.backtest;
@@ -22,6 +23,25 @@ namespace MMBotGA.ga.fitness
 
             var lowPosOverall = 1 - (double)tradesHighPosition / results.Count;
             return lowPosOverall;
+        }
+
+        public static double MaxCost(BacktestRequest request, ICollection<RunResponse> results, double maxCostThreshold)
+        {
+            double cost = 0;
+            double maxCost = 0;
+
+            foreach (var trade in results)
+            {
+                cost += trade.Sz * trade.Pr;
+                if (cost > maxCost) { maxCost = cost; }
+            }
+
+            var balance = request.RunRequest.Balance;
+            var budgetRatio = maxCost / balance;
+            var budgetRatioInverse = 1 - maxCost / balance;
+            if (budgetRatio < maxCostThreshold) return 1;
+
+            return budgetRatioInverse;
         }
 
         public static double Rrr(ICollection<RunResponse> results)
@@ -59,6 +79,8 @@ namespace MMBotGA.ga.fitness
 
             var trades = results.Count(x => x.Sz != 0);
             var alerts = 1 - (results.Count - trades) / (double) results.Count;
+
+            if (trades == 0 || alerts / trades > 0.03) return 0;
 
             var days = (last.Tm - first.Tm) / 86400000d;
             var tradesPerDay = trades / days;
@@ -153,26 +175,28 @@ namespace MMBotGA.ga.fitness
 
         public static double NpaRrr(BacktestRequest request, ICollection<RunResponse> results)
         {
-            //const double nppyWeight = 0.00;
-            const double pppyWeight = 0.15;
+            if (results == null || results.Count == 0) return 0;
+
+            const double pppyWeight = 0.20;
             const double ipdrWeight = 0.20;
-            const double lpoWeight = 0.10;
             const double rrrWeight = 0.05;
-            const double tradeCountWeight = 0.5;
+            const double tradeCountWeight = 0.3;
+            const double lpoWeight = 0.10;
+            const double mcWeight = 0.15;
 
-            const double balanceThreshold = 0.15;
+            Debug.Assert(Math.Abs(pppyWeight + ipdrWeight + lpoWeight + rrrWeight + tradeCountWeight + mcWeight - 1) < 0.01);
 
+            const double balanceThreshold = 0.1;
+            const double maxCostThreshold = 0.6;
 
-            var nppyEval = 0; //nppyWeight * NormalizedProfitPerYear(request, results);
-            var pppyEval = pppyWeight * PnlProfitPerYear(request, results);
-            var rrrEval = rrrWeight * Rrr(results);
-            var tradeCountEval = tradeCountWeight * TradeCountFactor(results);
-            var ipdrEval = ipdrWeight * IncomePerDayRatio(results);
-            var lowerPosEval = lpoWeight * LowerPositionOverall(request, results, balanceThreshold);
+            var fitness = pppyWeight * PnlProfitPerYear(request, results)
+                          + ipdrWeight * IncomePerDayRatio(results)
+                          + rrrWeight * Rrr(results)
+                          + tradeCountWeight * TradeCountFactor(results)
+                          + lpoWeight * LowerPositionOverall(request, results, balanceThreshold)
+                          + mcWeight * MaxCost(request, results, maxCostThreshold);
 
-            var fitness = nppyEval + pppyEval + ipdrEval + rrrEval + tradeCountEval + lowerPosEval;
-
-            Log.Debug($"Fitness : {fitness}, IPDR : {ipdrEval}, LPO : {lowerPosEval}");
+            Log.Debug($"Fitness : {fitness}");
 
             return fitness;
         }

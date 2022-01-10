@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Downloader.Core.Core;
+using MMBotGA.backtest;
 using MMBotGA.data.exchange;
 using MMBotGA.downloader;
 using MMBotGA.ga.abstraction;
@@ -25,18 +27,18 @@ namespace MMBotGA.data.provider
 
         private static IEnumerable<AllocationDefinition> AllocationDefinitions => new AllocationDefinition[]
         {
-            new()
-            {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("ZEC", "USDT"),
-                Balance = 1000
-            },
             //new()
             //{
             //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("FLUX", "USDT"),
+            //    Pair = new Pair("ZEC", "USDT"),
             //    Balance = 1000
             //},
+            new()
+            {
+                Exchange = Exchange.Kucoin,
+                Pair = new Pair("FLUX", "USDT"),
+                Balance = 1000
+            },
             //new()
             //{
             //    Exchange = Exchange.Kucoin,
@@ -127,24 +129,49 @@ namespace MMBotGA.data.provider
                 : Settings.DateSettings.Backtest;
 
             const int splits = 3;
-            var diff = backtestRange.End - backtestRange.Start;
-            var partMinutes = (int)diff.TotalMinutes / splits;
-            var halfPartMinutes = partMinutes / 2;
-
-            var offsets = Enumerable
-                .Repeat(partMinutes, splits)
-                .Select((p, i) => p * i)
-                .Concat(Enumerable
-                    .Repeat(partMinutes, splits - 1)
-                    .Select((p, i) => halfPartMinutes + p * i)
-                );
 
             return Settings.Allocations
-                .Select(x => new Batch(x.ToBatchName(),
-                    offsets
-                        .Select(o => downloader.GetBacktestData(x, DataFolder, backtestRange, false, limit: partMinutes, offset: o))
-                        .ToArray()
-                ))
+                .Select(x =>
+                {
+                    var file = downloader.Download(new DownloadTask(DataFolder, x.Exchange, x.Symbol, backtestRange));
+                    return new
+                    {
+                        Allocation = x,
+                        File = file,
+                        Size = File.ReadAllLines(file).Length
+                    };
+                })
+                .Where(x => x.Size > 100)
+                .Select(x =>
+                {
+                    var partMinutes = x.Size / splits;
+                    var halfPartMinutes = partMinutes / 2;
+
+                    var offsets = Enumerable
+                        .Repeat(partMinutes, splits)
+                        .Select((p, i) => p * i)
+                        .Concat(Enumerable
+                            .Repeat(partMinutes, splits - 1)
+                            .Select((p, i) => halfPartMinutes + p * i)
+                        );
+
+                    return new Batch(x.Allocation.ToBatchName(),
+                        offsets
+                            .Select(o => new BacktestData
+                            {
+                                Broker = x.Allocation.Exchange.ToLower(),
+                                Pair = x.Allocation.RobotSymbol ??
+                                       x.Allocation.Symbol, // Get broker pair info: /admin/api/brokers/kucoin/pairs
+                                SourceFile = x.File,
+                                Reverse = false,
+                                Balance = x.Allocation.Balance,
+                                Start = null,
+                                Limit = partMinutes,
+                                Offset = o
+                            })
+                            .ToArray()
+                    );
+                })
                 .ToArray();
 
             //var partDays = (int)diff.TotalDays / splits;
