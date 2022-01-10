@@ -18,7 +18,7 @@ namespace MMBotGA.backtest
 
         private static BacktestResult<TData> DefaultAggregationFunc(IEnumerable<BacktestResult<TData>> backtestResults)
         {
-            return backtestResults.OrderBy(x => x.Fitness).FirstOrDefault() ??
+            return backtestResults.OrderBy(x => x.Fitness.Fitness).FirstOrDefault() ??
                    new BacktestResult<TData>(default, default);
         }
 

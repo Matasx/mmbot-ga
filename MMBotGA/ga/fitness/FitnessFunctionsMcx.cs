@@ -12,7 +12,7 @@ namespace MMBotGA.ga.fitness
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(FitnessFunctionsMcx));
 
-        public static double LowerPositionOverall(BacktestRequest request, ICollection<RunResponse> results, double balancePercentage)
+        private static double LowerPositionOverall(BacktestRequest request, ICollection<RunResponse> results, double balancePercentage)
         {
             if (results.Count < 1) return 0;
 
@@ -25,7 +25,7 @@ namespace MMBotGA.ga.fitness
             return lowPosOverall;
         }
 
-        public static double MaxCost(BacktestRequest request, ICollection<RunResponse> results, double maxCostThreshold)
+        private static double MaxCost(BacktestRequest request, ICollection<RunResponse> results, double maxCostThreshold)
         {
             double cost = 0;
             double maxCost = 0;
@@ -44,7 +44,7 @@ namespace MMBotGA.ga.fitness
             return budgetRatioInverse;
         }
 
-        public static double Rrr(ICollection<RunResponse> results)
+        private static double Rrr(ICollection<RunResponse> results)
         {
             if (results.Count < 1) return 0;
 
@@ -71,7 +71,7 @@ namespace MMBotGA.ga.fitness
             return Normalize(result, 5, 30, null);
         }
 
-        public static double TradeCountFactor(ICollection<RunResponse> results)
+        private static double TradeCountFactor(ICollection<RunResponse> results)
         {
             if (results.Count < 2) return 0;
             var last = results.Last();
@@ -97,7 +97,7 @@ namespace MMBotGA.ga.fitness
             //return Normalize(trades, 1000, 3000, null) * alerts;
         }
 
-        public static double IncomePerDayRatio(ICollection<RunResponse> results)
+        private static double IncomePerDayRatio(ICollection<RunResponse> results)
         {
             if (results.Count < 2)
             {
@@ -126,22 +126,69 @@ namespace MMBotGA.ga.fitness
                     .Where(x => x.Tm >= firstChunkTrade && x.Tm < lastChunkTrade)
                     .ToList();
 
-                if (dayTrades.Any())
-                {
-                    var np = dayTrades.Last().Np - dayTrades.First().Np;
-                    var pl = dayTrades.Last().Pl - dayTrades.First().Pl;
+                if (!dayTrades.Any()) continue;
 
-                    if (pl > 0 && np > 0)
-                    {
-                        goodDay++;
-                    }
+                var np = dayTrades.Last().Np - dayTrades.First().Np;
+                var pl = dayTrades.Last().Pl - dayTrades.First().Pl;
+
+                if (pl > 0 && np > 0)
+                {
+                    goodDay++;
                 }
             }
 
             return (double)goodDay / totalDays;
         }
 
-        public static double NormalizedProfitPerYear(BacktestRequest request, ICollection<RunResponse> results)
+        private static double RpnlFactor(BacktestRequest request, ICollection<RunResponse> results)
+        {
+            if (results.Count < 2)
+            {
+                return 0;
+            }
+
+            var firstResult = results.First();
+            var lastResult = results.Last();
+
+            var totalDays = (lastResult.Tm - firstResult.Tm) / 86400000;
+
+            if (totalDays <= 0)
+            {
+                return 0;
+            }
+
+            var backtestStartingPoint = firstResult.Tm;
+
+            var sum = 0d;
+            for (var day = 0; day < totalDays; day++)
+            {
+                var firstChunkTrade = backtestStartingPoint + day * 86400000;
+                var lastChunkTrade = backtestStartingPoint + (day + 1) * 86400000;
+
+                var dayTrades = results
+                    .Where(x => x.Tm >= firstChunkTrade && x.Tm < lastChunkTrade)
+                    .ToList();
+
+                if (!dayTrades.Any()) continue;
+
+                //var np = dayTrades.Last().Np - dayTrades.First().Np;
+                var pl = dayTrades.Last().Pl - dayTrades.First().Pl;
+                var perc = pl / request.RunRequest.Balance;
+                double norm;
+                
+                // daily profit above 0.3% (e.g. 30$ of 10k budget)
+                if (perc < 0)
+                    norm = -Normalize(-perc, 0.003, 0.01, null);
+                else
+                    norm = Normalize(perc, 0.003, 0.01, null);
+
+                sum += norm;
+            }
+
+            return Math.Max(sum / totalDays, 0);
+        }
+
+        private static double NormalizedProfitPerYear(BacktestRequest request, ICollection<RunResponse> results)
         {
             // npc: https://github.com/ondra-novak/mmbot/blob/141f74206f7b1938fa0903d20486f4962293ad1e/www/admin/code.js#L1872
 
@@ -157,7 +204,7 @@ namespace MMBotGA.ga.fitness
             return Normalize(profit, 1, 3, null);
         }
 
-        public static double PnlProfitPerYear(BacktestRequest request, ICollection<RunResponse> results)
+        private static double PnlProfitPerYear(BacktestRequest request, ICollection<RunResponse> results)
         {
             // pc: https://github.com/ondra-novak/mmbot/blob/141f74206f7b1938fa0903d20486f4962293ad1e/www/admin/code.js#L1873
 
@@ -173,35 +220,38 @@ namespace MMBotGA.ga.fitness
             return Normalize(profit, 1, 3, null);
         }
 
-        public static double NpaRrr(BacktestRequest request, ICollection<RunResponse> results)
+        public static FitnessComposition NpaRrr(BacktestRequest request, ICollection<RunResponse> results)
         {
-            if (results == null || results.Count == 0) return 0;
+            if (results == null || results.Count == 0) return new FitnessComposition();
 
-            const double pppyWeight = 0.20;
-            const double ipdrWeight = 0.20;
+            const double pppyWeight = 0.15;
+            const double ipdrWeight = 0.05;
             const double rrrWeight = 0.05;
             const double tradeCountWeight = 0.3;
             const double lpoWeight = 0.10;
             const double mcWeight = 0.15;
+            const double rpnlWeight = 0.20;
 
-            Debug.Assert(Math.Abs(pppyWeight + ipdrWeight + lpoWeight + rrrWeight + tradeCountWeight + mcWeight - 1) < 0.01);
+            Debug.Assert(Math.Abs(pppyWeight + ipdrWeight + lpoWeight + rrrWeight + tradeCountWeight + mcWeight + rpnlWeight - 1) < 0.01);
 
             const double balanceThreshold = 0.1;
             const double maxCostThreshold = 0.6;
 
-            var fitness = pppyWeight * PnlProfitPerYear(request, results)
-                          + ipdrWeight * IncomePerDayRatio(results)
-                          + rrrWeight * Rrr(results)
-                          + tradeCountWeight * TradeCountFactor(results)
-                          + lpoWeight * LowerPositionOverall(request, results, balanceThreshold)
-                          + mcWeight * MaxCost(request, results, maxCostThreshold);
+            var result = new FitnessComposition();
+            result.Fitness = pppyWeight * (result.PnlProfitPerYear = PnlProfitPerYear(request, results))
+                          + ipdrWeight * (result.IncomePerDayRatio = IncomePerDayRatio(results))
+                          + rrrWeight * (result.RRR = Rrr(results))
+                          + tradeCountWeight * (result.TradeCountFactor = TradeCountFactor(results))
+                          + lpoWeight * (result.LowerPositionFactor = LowerPositionOverall(request, results, balanceThreshold))
+                          + mcWeight * (result.MaxCostFactor = MaxCost(request, results, maxCostThreshold))
+                          + rpnlWeight * (result.RpnlFactor = RpnlFactor(request, results));
 
-            Log.Debug($"Fitness : {fitness}");
+            Log.Debug($"Fitness : {result.Fitness}");
 
-            return fitness;
+            return result;
         }
 
-        public static double Normalize(double value, double target, double virtualMax, double? cap)
+        private static double Normalize(double value, double target, double virtualMax, double? cap)
         {
             if (value <= 0) return 0;
             var capped = Math.Min(value, cap ?? value);

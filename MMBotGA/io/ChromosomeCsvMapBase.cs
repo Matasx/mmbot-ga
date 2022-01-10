@@ -38,6 +38,8 @@ namespace MMBotGA.io
             {
                 References<StatisticsMap>(x => x.Statistics).Prefix("Stats_");
             }
+
+            References<FitnessCompositionMap>(x => x.FitnessComposition).Prefix("Fitness_");
         }
 
         private MemberMap<StrategyChromosome, GeneWrapper<TMember>> Map<TMember>(Expression<Func<StrategyChromosome, GeneWrapper<TMember>>> expression, bool useExistingMap = true)

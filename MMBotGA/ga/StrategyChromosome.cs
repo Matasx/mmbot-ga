@@ -1,6 +1,7 @@
 ﻿using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Randomizations;
 using MMBotGA.backtest;
+using MMBotGA.ga.fitness;
 
 namespace MMBotGA.ga
 {
@@ -78,6 +79,8 @@ namespace MMBotGA.ga
         public Statistics Statistics { get; set; }
         public Statistics BacktestStats { get; set; }
         public Statistics ControlStats { get; set; }
+
+        public FitnessComposition FitnessComposition { get; set; } 
 
         public override Gene GenerateGene(int geneIndex) => _factory.Generate(geneIndex);
 

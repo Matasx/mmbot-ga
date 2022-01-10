@@ -18,7 +18,7 @@ namespace MMBotGA.io
             {
                 if (!string.IsNullOrEmpty(_directory)) return _directory;
 
-                var dir = Path.Combine("results", DateTime.Now.ToString("s").Replace(':', '.'));
+                var dir = Path.Combine("results", DateTimeProvider.Start.ToString("s").Replace(':', '.'));
                 var directory = new DirectoryInfo(dir);
                 if (!directory.Exists) directory.Create();
                 _directory = directory.FullName;
@@ -51,7 +51,7 @@ namespace MMBotGA.io
             _csv?.Dispose();
         }
 
-        private string Sanitize(string fileName)
+        private static string Sanitize(string fileName)
         {
             return Path.GetInvalidFileNameChars()
                 .Aggregate(fileName, (current, ch) => current.Replace(ch.ToString(), "+"));

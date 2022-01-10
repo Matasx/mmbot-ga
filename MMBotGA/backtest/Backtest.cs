@@ -18,12 +18,12 @@ namespace MMBotGA.backtest
         private readonly SemaphoreSlim _semaphore = new(1);
         private readonly ApiLease _api;
         private readonly BacktestData _data;
-        private readonly Func<BacktestRequest, ICollection<RunResponse>, double> _fitnessEvaluator;
+        private readonly Func<BacktestRequest, ICollection<RunResponse>, FitnessComposition> _fitnessEvaluator;
         private readonly IDictionary<Api, Context> _contexts = new Dictionary<Api, Context>();
 
         private Minfo _minfo;
 
-        public Backtest(ApiLease api, BacktestData data, Func<BacktestRequest, ICollection<RunResponse>, double> fitnessEvaluator = null)
+        public Backtest(ApiLease api, BacktestData data, Func<BacktestRequest, ICollection<RunResponse>, FitnessComposition> fitnessEvaluator = null)
         {
             _api = api;
             _data = data;

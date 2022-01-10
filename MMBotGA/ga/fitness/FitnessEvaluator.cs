@@ -49,6 +49,7 @@ namespace MMBotGA.ga.fitness
                 stopwatch.Stop();
 
                 chromosome.Statistics = StatisticsEvaluator.Evaluate(request, result.Data ?? new List<RunResponse>());
+                chromosome.FitnessComposition = result.Fitness;
 
                 Application.MainLoop.Invoke(() =>
                 {
@@ -56,7 +57,7 @@ namespace MMBotGA.ga.fitness
                 });
 
                 Log.Debug($"Done in {stopwatch.ElapsedMilliseconds} ms: {result.Fitness}");
-                return result.Fitness;
+                return result.Fitness.Fitness;
             }
             catch (Exception e)
             {

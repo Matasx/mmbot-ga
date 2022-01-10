@@ -1,11 +1,13 @@
-﻿namespace MMBotGA.backtest
+﻿using MMBotGA.ga.fitness;
+
+namespace MMBotGA.backtest
 {
     internal class BacktestResult<T>
     {
-        public double Fitness { get; }
+        public FitnessComposition Fitness { get; }
         public T Data { get; }
 
-        public BacktestResult(double fitness, T data)
+        public BacktestResult(FitnessComposition fitness, T data)
         {
             Fitness = fitness;
             Data = data;
