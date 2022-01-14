@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using GeneticSharp.Domain.Fitnesses;
+using MMBot.Api.dto;
 using MMBotGA.api;
 using MMBotGA.backtest;
-using MMBotGA.dto;
 using MMBotGA.ga.fitness;
 using Terminal.Gui;
 

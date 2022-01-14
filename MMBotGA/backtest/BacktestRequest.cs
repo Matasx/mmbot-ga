@@ -1,4 +1,4 @@
-﻿using MMBotGA.dto;
+﻿using MMBot.Api.dto;
 
 namespace MMBotGA.backtest
 {

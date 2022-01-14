@@ -2,13 +2,14 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MMBot.Api;
 
 namespace MMBotGA.api
 {
     internal class ApiLease
     {
         private readonly SemaphoreSlim _semaphore = new(1);
-        private readonly IDictionary<Api, LeasableApi> _apis;
+        private readonly IDictionary<IMMBotApi, LeasableApi> _apis;
         public int Available => _apis.Values.Sum(x => x.Available);
 
         public ApiLease(params LeasableApi[] apis)
@@ -16,7 +17,7 @@ namespace MMBotGA.api
             _apis = apis.ToDictionary(x => x.Api, x => x);
         }
 
-        public async Task<Api> LeaseAsync()
+        public async Task<IMMBotApi> LeaseAsync()
         {
             try
             {
@@ -35,7 +36,7 @@ namespace MMBotGA.api
             }
         }
 
-        public void EndLease(Api api)
+        public void EndLease(IMMBotApi api)
         {
             _apis[api].EndLease();
         }

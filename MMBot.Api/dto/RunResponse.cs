@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace MMBotGA.dto
+namespace MMBot.Api.dto
 {
     public class RunResponse
     {
@@ -8,7 +8,7 @@ namespace MMBotGA.dto
         public double Bal { get; set; }
 
         [JsonPropertyName("na")]
-        public int Na { get; set; }
+        public double Na { get; set; }
 
         [JsonPropertyName("np")]
         public double Np { get; set; }
@@ -20,7 +20,7 @@ namespace MMBotGA.dto
         public double Npla { get; set; }
 
         [JsonPropertyName("op")]
-        public int Op { get; set; }
+        public double Op { get; set; }
 
         [JsonPropertyName("pl")]
         public double Pl { get; set; }
@@ -39,6 +39,12 @@ namespace MMBotGA.dto
 
         [JsonPropertyName("ubal")]
         public double Ubal { get; set; }
+
+        [JsonPropertyName("rpnl")]
+        public double Rpnl { get; set; }
+
+        [JsonPropertyName("upnl")]
+        public double Upnl { get; set; }
 
         [JsonPropertyName("info")]
         public Info Info { get; set; }

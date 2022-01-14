@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using MMBot.Api;
+using MMBot.Api.dto;
+using mmbot_microport.utils;
 using MMBotGA.api;
-using MMBotGA.dto;
 using MMBotGA.ga.fitness;
 using MMBotGA.io;
-using MMBotGA.utils;
 
 namespace MMBotGA.backtest
 {
@@ -19,7 +20,7 @@ namespace MMBotGA.backtest
         private readonly ApiLease _api;
         private readonly BacktestData _data;
         private readonly Func<BacktestRequest, ICollection<RunResponse>, FitnessComposition> _fitnessEvaluator;
-        private readonly IDictionary<Api, Context> _contexts = new Dictionary<Api, Context>();
+        private readonly IDictionary<IMMBotApi, Context> _contexts = new Dictionary<IMMBotApi, Context>();
 
         private Minfo _minfo;
 
@@ -70,12 +71,12 @@ namespace MMBotGA.backtest
         private class Context
         {
             private readonly Backtest _backtest;
-            private readonly Api _api;
+            private readonly IMMBotApi _api;
 
             private FileIdResponse _dataset;
             private readonly SemaphoreSlim _semaphore = new(1);
 
-            public Context(Backtest backtest, Api api)
+            public Context(Backtest backtest, IMMBotApi api)
             {
                 _backtest = backtest;
                 _api = api;

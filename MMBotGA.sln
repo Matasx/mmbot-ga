@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MMBotGA", "MMBotGA\MMBotGA.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Downloader.Core", "mmbot-downloader\Downloader.Core\Downloader.Core.csproj", "{5C50B2A4-1C74-4630-BD53-04B26DF8BB0A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mmbot-microport", "mmbot-microport\mmbot-microport.csproj", "{2796F99C-9D27-49BD-ACC1-AAA829E52485}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Api", "MMBot.Api\MMBot.Api.csproj", "{1A58B363-406D-4E55-B18A-AD8231BC4346}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{5C50B2A4-1C74-4630-BD53-04B26DF8BB0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C50B2A4-1C74-4630-BD53-04B26DF8BB0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C50B2A4-1C74-4630-BD53-04B26DF8BB0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2796F99C-9D27-49BD-ACC1-AAA829E52485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2796F99C-9D27-49BD-ACC1-AAA829E52485}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2796F99C-9D27-49BD-ACC1-AAA829E52485}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2796F99C-9D27-49BD-ACC1-AAA829E52485}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A58B363-406D-4E55-B18A-AD8231BC4346}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A58B363-406D-4E55-B18A-AD8231BC4346}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A58B363-406D-4E55-B18A-AD8231BC4346}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A58B363-406D-4E55-B18A-AD8231BC4346}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace MMBotGA.dto
+namespace MMBot.Api.dto
 {
     public class RunRequest
     {
@@ -12,6 +12,9 @@ namespace MMBotGA.dto
 
         [JsonPropertyName("init_price")]
         public double InitPrice { get; set; }
+
+        [JsonPropertyName("init_pos")]
+        public double? InitPos { get; set; }
 
         [JsonPropertyName("balance")]
         public double Balance { get; set; }

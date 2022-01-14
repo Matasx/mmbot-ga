@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using log4net;
+using MMBot.Api;
 using MMBotGA.api.endpoints;
 
 namespace MMBotGA.api
@@ -17,12 +18,12 @@ namespace MMBotGA.api
         public static ApiLease GetLease()
         {
             return new ApiLease(Endpoints
-                .Select(x => CreateBackend(x.LeaseCount, x.Url, x.Username, x.Password))
+                .Select(x => CreateBackend(x.LeaseCount, x.UseNative, x.Url, x.Username, x.Password))
                 .ToArray()
             );
         }
 
-        private static LeasableApi CreateBackend(int leaseCount, string url, string username, string password)
+        private static LeasableApi CreateBackend(int leaseCount, bool useNative, string url, string username, string password)
         {
             HttpMessageHandler handler = new HttpClientHandler
             {
@@ -35,10 +36,16 @@ namespace MMBotGA.api
                 handler = new LoggingHandler(handler);
             }
 
-            return new LeasableApi(leaseCount, new Api(url, new HttpClient(handler)
+            IMMBotApi api = new Api(url, new HttpClient(handler)
             {
                 Timeout = TimeSpan.FromSeconds(60)
-            }));
+            });
+
+            if (useNative)
+            {
+                api = new MMBotApiProxy(api);
+            }
+            return new LeasableApi(leaseCount, api);
         }
     }
 }

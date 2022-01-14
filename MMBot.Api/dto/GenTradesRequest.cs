@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace MMBotGA.dto
+namespace MMBot.Api.dto
 {
     public class GenTradesRequest
     {

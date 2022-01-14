@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Fitnesses;
 using log4net;
+using MMBot.Api.dto;
 using MMBotGA.backtest;
-using MMBotGA.dto;
 using Terminal.Gui;
 
 namespace MMBotGA.ga.fitness

@@ -4,11 +4,12 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using MMBotGA.dto;
+using MMBot.Api;
+using MMBot.Api.dto;
 
 namespace MMBotGA.api
 {
-    internal class Api
+    internal class Api : IMMBotApi
     {
         private readonly string _baseUrl;
         private readonly HttpClient _client;

@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using MMBot.Api;
 
 namespace MMBotGA.api
 {
@@ -7,9 +8,9 @@ namespace MMBotGA.api
     {
         private readonly SemaphoreSlim _semaphore;
         public int Available => _semaphore.CurrentCount;
-        public Api Api { get; private set; }
+        public IMMBotApi Api { get; }
 
-        public LeasableApi(int leaseCount, Api api)
+        public LeasableApi(int leaseCount, IMMBotApi api)
         {
             _semaphore = new SemaphoreSlim(leaseCount);
             Api = api;

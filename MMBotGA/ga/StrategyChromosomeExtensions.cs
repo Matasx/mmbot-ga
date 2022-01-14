@@ -1,5 +1,5 @@
-﻿using MMBotGA.backtest;
-using MMBotGA.dto;
+﻿using MMBot.Api.dto;
+using MMBotGA.backtest;
 
 namespace MMBotGA.ga
 {
@@ -39,6 +39,7 @@ namespace MMBotGA.ga
                     Invert = false,
                     NegBal = false,
                     InitPrice = 0,
+                    //InitPos = 0,
                     Spend = true,
                     Config = new Config
                     {

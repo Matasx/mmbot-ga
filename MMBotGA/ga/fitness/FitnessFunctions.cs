@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MMBot.Api.dto;
 using MMBotGA.backtest;
-using MMBotGA.dto;
 
 namespace MMBotGA.ga.fitness
 {

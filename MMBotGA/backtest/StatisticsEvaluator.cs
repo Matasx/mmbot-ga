@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MMBotGA.dto;
+using MMBot.Api.dto;
 
 namespace MMBotGA.backtest
 {
