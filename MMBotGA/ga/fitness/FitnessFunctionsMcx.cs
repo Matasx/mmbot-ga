@@ -67,7 +67,7 @@ namespace MMBotGA.ga.fitness
             }
             
             var result = Math.Max(maxPl / maxDowndraw, 0);
-            return Normalize(result, 5, 30, null);
+            return Normalize(result, 10, 30, null);
         }
 
         private static double TradeCountFactor(ICollection<RunResponse> results)
@@ -79,13 +79,13 @@ namespace MMBotGA.ga.fitness
             var trades = results.Count(x => x.Sz != 0);
             var alerts = 1 - (results.Count - trades) / (double) results.Count;
 
-            if (trades == 0 || alerts / trades > 0.02) return 0;
+            if (trades == 0 || alerts / trades > 0.02) return 0; //alerts / trades > 0.02
 
             var days = (last.Tm - first.Tm) / 86400000d;
             var tradesPerDay = trades / days;
 
-            const int mean = 15;
-            const int delta = 10; // target trade range is 5 - 25 trades per day
+            const int mean = 16;
+            const int delta = 7; // target trade range is 9 - 23 trades per day
 
             var x = Math.Abs(tradesPerDay - mean); // 0 - inf, 0 is best
             var y = Math.Max(x - delta, 0) + 1; // 1 - inf, 1 is best ... 
@@ -172,6 +172,9 @@ namespace MMBotGA.ga.fitness
                 }
             }
 
+            //todo: distinguish what is reasonable global and what should be evaluated daily
+            //todo: needs daily performance indicators
+
             var total = realizedLoss + realizedProfit;
             if (total == 0) return 0;
             return realizedProfit / total; //prefer ratio of good trades
@@ -247,6 +250,7 @@ namespace MMBotGA.ga.fitness
 
             var sum = 0d;
             var goodDay = 0;
+            var badDay = 0;
             for (var day = 0; day < totalDays; day++)
             {
                 var firstChunkTrade = backtestStartingPoint + day * 86400000;
@@ -267,6 +271,10 @@ namespace MMBotGA.ga.fitness
                 {
                     goodDay++;
                 }
+                else
+                {
+                    badDay++;
+                }
 
                 //var perc = pl / request.RunRequest.Balance;
                 //double norm;
@@ -280,10 +288,15 @@ namespace MMBotGA.ga.fitness
                 //sum += norm;
             }
 
+            var total = goodDay + badDay;
+            if (total == 0) return 0;
+
             //todo: rpnl per year?
             //todo: upnl at the end
-
-            return (double)goodDay / totalDays;
+            var gd = (double)goodDay / total;
+            return gd;
+            //var bd = Math.Max(0, 1 - (double)(badDay * 2) / total);
+            //return 0.5 * gd + 0.5 * bd;
         }
 
         private static double NormalizedProfitPerYear(BacktestRequest request, ICollection<RunResponse> results)
@@ -328,29 +341,29 @@ namespace MMBotGA.ga.fitness
             //const double rrrWeight = 0;
             //const double mcWeight = 0.10;
 
-            const double rpnlWeight = 0.25;
-            const double pppyWeight = 0.25;
-            const double ipdrWeight = 0;
-            const double tradeCountWeight = 0.20;
+            const double rpnlWeight = 0.30;
+            const double rrrWeight = 0.25;
+            const double mcWeight = 0.15;
+            const double pppyWeight = 0.15;
             const double lpoWeight = 0.10;
-            const double rrrWeight = 0;
-            const double mcWeight = 0.20;
+            const double tradeCountWeight = 0.05;
+            const double ipdrWeight = 0;
 
             Debug.Assert(Math.Abs(pppyWeight + ipdrWeight + lpoWeight + rrrWeight + tradeCountWeight + mcWeight + rpnlWeight - 1) < 0.01);
 
             const double balanceThreshold = 0.1;
-            const double maxCostThreshold = 0.6;
+            const double maxCostThreshold = 0.8;
 
             //todo simplify all pl metrics ... ensure pl ascending trend
 
             var result = new FitnessComposition();
             result.Fitness = pppyWeight * (result.PnlProfitPerYear = PnlProfitPerYear(request, results))
                           //+ ipdrWeight * (result.IncomePerDayRatio = IncomePerDayRatio(results))
-                          //+ rrrWeight * (result.RRR = Rrr(results))
+                          + rrrWeight * (result.RRR = Rrr(results))
                           + tradeCountWeight * (result.TradeCountFactor = TradeCountFactor(results))
                           + lpoWeight * (result.LowerPositionFactor = LowerPositionOverall(request, results, balanceThreshold))
                           + mcWeight * (result.MaxCostFactor = MaxCost(request, results, maxCostThreshold))
-                          + rpnlWeight * (result.RpnlFactor = RpnlRatioFactor(request, results));
+                          + rpnlWeight * (result.RpnlFactor = RpnlDayFactor(request, results));
 
             Log.Debug($"Fitness : {result.Fitness}");
 
@@ -360,9 +373,10 @@ namespace MMBotGA.ga.fitness
             // - rpnl - good days ... try as ratio of good trades, instead of days
             // - make sure to stay within budget (i.e. max cost below certain percentage)
 
-            // Next ideas
-            // - lower number of alerts further
-            // - make trade count more loose
+            // TODO: Next ideas
+            // - lower number of alerts further -> 0?
+            // - push more on weight for max cost
+            // - test again on reverse charts
 
             return result;
         }

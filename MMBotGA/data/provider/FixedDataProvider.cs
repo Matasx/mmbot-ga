@@ -169,6 +169,10 @@ namespace MMBotGA.data.provider
                                 Limit = partMinutes,
                                 Offset = o
                             })
+                            //.Concat(new []
+                            //{
+                            //    downloader.GetBacktestData(x.Allocation, DataFolder, backtestRange, true)
+                            //})
                             .ToArray()
                     );
                 })
