@@ -33,9 +33,9 @@ namespace MMBotGA.ga.fitness
         }
 
         public double Evaluate(IChromosome chromosome)
-            => EvaluateAsync(chromosome as StrategyChromosome).GetAwaiter().GetResult();
+            => EvaluateAsync(chromosome as ICustomChromosome).GetAwaiter().GetResult();
 
-        private async Task<double> EvaluateAsync(StrategyChromosome chromosome)
+        private async Task<double> EvaluateAsync(ICustomChromosome chromosome)
         {
             try
             {

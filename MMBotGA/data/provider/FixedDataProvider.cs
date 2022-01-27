@@ -6,7 +6,9 @@ using Downloader.Core.Core;
 using MMBotGA.backtest;
 using MMBotGA.data.exchange;
 using MMBotGA.downloader;
+using MMBotGA.ga;
 using MMBotGA.ga.abstraction;
+using Newtonsoft.Json;
 
 namespace MMBotGA.data.provider
 {
@@ -27,17 +29,33 @@ namespace MMBotGA.data.provider
 
         private static IEnumerable<AllocationDefinition> AllocationDefinitions => new AllocationDefinition[]
         {
-            //new()
-            //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("FLUX", "USDT"),
-            //    Balance = 1000
-            //},
+            new()
+            {
+                Exchange = Exchange.Kucoin,
+                Pair = new Pair("FLUX", "USDT"),
+                Balance = 1000
+            },
+            new()
+            {
+                Exchange = Exchange.Kucoin,
+                Pair = new Pair("HTR", "USDT"),
+                Balance = 1000
+            },
             new()
             {
                 Exchange = Exchange.Bitfinex,
                 Pair = new Pair("ZEC", "USD"),
-                Balance = 1000
+                Balance = 1000,
+                // Set strategy manually and train just spread
+                AdamChromosome = new SpreadChromosome(new dto.Strategy
+                {
+                    Type = "gamma",
+                    Exponent = 7,
+                    Trend = -70,
+                    Function = "gauss",
+                    Rebalance = "3",
+                    Reinvest = false                    
+                })
             },
             //new()
             //{
@@ -49,7 +67,7 @@ namespace MMBotGA.data.provider
 
         public Batch[] GetBacktestData(IProgress progressCallback)
         {
-            //File.WriteAllText("allocations.json", JsonConvert.SerializeObject(Settings, Formatting.Indented)); 
+            File.WriteAllText("allocations.json.sample", JsonConvert.SerializeObject(Settings, Formatting.Indented)); 
 
             var downloader = new DefaultDownloader(progressCallback);
             var backtestRange = Settings.DateSettings.Automatic
@@ -83,7 +101,7 @@ namespace MMBotGA.data.provider
                             .Select((p, i) => halfPartMinutes + p * i)
                         );
 
-                    return new Batch(x.Allocation.ToBatchName(),
+                    return new Batch(x.Allocation.ToBatchName(), x.Allocation.AdamChromosome,
                         offsets
                             .Select(o => new BacktestData
                             {
@@ -130,7 +148,7 @@ namespace MMBotGA.data.provider
                 : Settings.DateSettings.Control;
 
             return Settings.Allocations
-                .Select(x => new Batch(x.ToBatchName(),
+                .Select(x => new Batch(x.ToBatchName(), x.AdamChromosome,
                     new[]
                     {
                         downloader.GetBacktestData(x, DataFolder, controlRange, false)

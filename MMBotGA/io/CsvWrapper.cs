@@ -7,12 +7,12 @@ using CsvHelper.Configuration;
 
 namespace MMBotGA.io
 {
-    internal class CsvWrapper<TMap, TRecord> : IDisposable where TMap : ClassMap
+    internal class CsvWrapper : IDisposable
     {
         private static string _directory;
         private readonly CsvWriter _csv;
 
-        private static string Directory 
+        private static string Directory
         {
             get
             {
@@ -26,20 +26,20 @@ namespace MMBotGA.io
             }
         }
 
-        public CsvWrapper(string name)
+        public CsvWrapper(string name, Type mapType, Type recordType)
         {
             var filename = Sanitize($"results-{name}.csv");
             var fullPath = Path.Combine(Directory, filename);
 
             var writer = new StreamWriter(fullPath, false);
             _csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
-            _csv.Context.RegisterClassMap<TMap>();
-            _csv.WriteHeader<TRecord>();
+            _csv.Context.RegisterClassMap(mapType);
+            _csv.WriteHeader(recordType);
             _csv.NextRecord();
             _csv.Flush();
         }
 
-        public void WriteRecord(TRecord record)
+        public void WriteRecord(object record)
         {
             _csv.WriteRecord(record);
             _csv.NextRecord();
@@ -55,6 +55,26 @@ namespace MMBotGA.io
         {
             return Path.GetInvalidFileNameChars()
                 .Aggregate(fileName, (current, ch) => current.Replace(ch.ToString(), "+"));
+        }
+    }
+
+    internal class CsvWrapper<TMap, TRecord> : IDisposable where TMap : ClassMap
+    {
+        private static CsvWrapper _wrapper;
+
+        public CsvWrapper(string name)
+        {
+            _wrapper = new CsvWrapper(name, typeof(TMap), typeof(TRecord));
+        }
+
+        public void WriteRecord(TRecord record)
+        {
+            _wrapper.WriteRecord(record);
+        }
+
+        public void Dispose()
+        {
+            _wrapper.Dispose();
         }
     }
 }

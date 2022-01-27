@@ -3,9 +3,9 @@ using MMBotGA.dto;
 
 namespace MMBotGA.ga
 {
-    internal static class StrategyChromosomeExtensions
+    internal static class ChromosomeExtensions
     {
-        public static BacktestRequest ToBacktestRequest(this StrategyChromosome chromosome)
+        public static BacktestRequest ToBacktestRequest(this SpreadChromosome chromosome, Strategy strategy)
         {
             const bool sliding = false;
             var freeze = chromosome.Freeze;
@@ -42,16 +42,7 @@ namespace MMBotGA.ga
                     Spend = false, // true applies to keep-value only
                     Config = new Config
                     {
-                        Strategy = new Strategy
-                        {
-                            Type = "gamma",
-                            Function = chromosome.Function,
-                            Trend = chromosome.Trend,
-                            Reinvest = false,
-
-                            Exponent = chromosome.Exponent,
-                            Rebalance = chromosome.Rebalance.ToString()
-                        },
+                        Strategy = strategy,
                         Enabled = true,
                         AdjTimeout = 5,
 
@@ -70,6 +61,20 @@ namespace MMBotGA.ga
                     }
                 }
             };
+        }
+
+        public static BacktestRequest ToBacktestRequest(this StrategyChromosome chromosome)
+        {
+            return chromosome.ToBacktestRequest(new Strategy
+            {
+                Type = "gamma",
+                Function = chromosome.Function,
+                Trend = chromosome.Trend,
+                Reinvest = false,
+
+                Exponent = chromosome.Exponent,
+                Rebalance = chromosome.Rebalance.ToString()
+            });
         }
     }
 }

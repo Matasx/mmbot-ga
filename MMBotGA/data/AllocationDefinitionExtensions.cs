@@ -1,4 +1,6 @@
-﻿namespace MMBotGA.data
+﻿using MMBotGA.ga;
+
+namespace MMBotGA.data
 {
     internal static class AllocationDefinitionExtensions
     {
@@ -9,7 +11,8 @@
                 Exchange = allocationDefinition.Exchange.Name,
                 Symbol = allocationDefinition.Exchange.GetSymbol(allocationDefinition.Pair),
                 RobotSymbol = allocationDefinition.Exchange.GetRobotSymbol(allocationDefinition.Pair),
-                Balance = allocationDefinition.Balance
+                Balance = allocationDefinition.Balance,
+                AdamChromosome = allocationDefinition.AdamChromosome ?? new StrategyChromosome()
             };
         }
     }

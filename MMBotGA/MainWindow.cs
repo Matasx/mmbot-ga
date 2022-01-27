@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GeneticSharp.Domain;
@@ -127,50 +128,59 @@ namespace MMBotGA
             var selection = new EliteSelection();
             var crossover = new UniformCrossover();
             var mutation = new UniformMutation(true);
-            var chromosome = new StrategyChromosome();
-            var population = new Population(500, 3000, chromosome);
             var termination = new FitnessStagnationTermination(40);
             var executor = new ExactParallelTaskExecutor(apiPool.Available);
 
-            using (var csvMerged = new CsvWrapper<AggregatedChromosomeCsvMap, StrategyChromosome>("MASTER"))
+            var csvHandlers = new Dictionary<Tuple<Type, Type>, CsvWrapper>();
+            var current = 0;
+            var csvIndex = 0;
+            foreach (var batch in backtestBatches)
             {
-                var current = 0;
-                foreach (var batch in backtestBatches)
+                current++;
+                Application.MainLoop.Invoke(() =>
                 {
-                    current++;
-                    Application.MainLoop.Invoke(() =>
-                    {
-                        _txtBatch.Text = batch.Name;
-                        _txtGeneration.Text = "0";
-                        _txtFitness.Text = string.Empty;
-                    });
+                    _txtBatch.Text = batch.Name;
+                    _txtGeneration.Text = "0";
+                    _txtFitness.Text = string.Empty;
+                });
 
-                    var ga = new GeneticAlgorithm(population, batch.ToFitness(_currentProgressBar, apiPool),
-                        selection, crossover,
-                        mutation)
-                    {
-                        Termination = termination,
-                        TaskExecutor = executor
-                    };
+                var population = new Population(500, 3000, batch.AdamChromosome);
+                var ga = new GeneticAlgorithm(population, batch.ToFitness(_currentProgressBar, apiPool),
+                    selection, crossover,
+                    mutation)
+                {
+                    Termination = termination,
+                    TaskExecutor = executor
+                };
 
-                    var best = RunGA(ga, batch.Name);
-                    var progress = (float) current / backtestBatches.Length;
-                    Application.MainLoop.Invoke(() => { _totalProgressBar.Fraction = progress; });
+                var best = RunGA(ga, batch.AdamChromosome, batch.Name);
+                var progress = (float) current / backtestBatches.Length;
+                Application.MainLoop.Invoke(() => { _totalProgressBar.Fraction = progress; });
 
-                    if (best == null) continue;
-                    best.BacktestStats = best.Statistics;
+                if (best == null) continue;
+                best.BacktestStats = best.Statistics;
 
-                    // Re-evaluate over control set
-                    var controlFitness = controlBatches
-                        .FirstOrDefault(x => x.Name == batch.Name)
-                        ?.ToFitness(_currentProgressBar, apiPool);
-                    if (controlFitness != null)
-                    {
-                        controlFitness.Evaluate(best);
-                        best.ControlStats = best.Statistics;
-                    }
-                    csvMerged.WriteRecord(best);
+                // Re-evaluate over control set
+                var controlFitness = controlBatches
+                    .FirstOrDefault(x => x.Name == batch.Name)
+                    ?.ToFitness(_currentProgressBar, apiPool);
+                if (controlFitness != null)
+                {
+                    controlFitness.Evaluate(best);
+                    best.ControlStats = best.Statistics;
                 }
+
+                var key = new Tuple<Type, Type>(batch.AdamChromosome.CsvAggregatedMapType, batch.AdamChromosome.CsvRecordType);
+                if (!csvHandlers.TryGetValue(key, out var csvWrapper))
+                {
+                    csvHandlers[key] = csvWrapper = new CsvWrapper($"MASTER-{++csvIndex}", key.Item1, key.Item2);
+                }
+                csvWrapper.WriteRecord(best);
+            }
+
+            foreach (var csv in csvHandlers.Values)
+            {
+                csv.Dispose();
             }
 
             Application.MainLoop.Invoke(() =>
@@ -183,15 +193,15 @@ namespace MMBotGA
             //Application.MainLoop.Invoke(() => MessageBox.Query("Information", "GA is finished.", "OK"));
         }
 
-        private StrategyChromosome RunGA(GeneticAlgorithm ga, string name)
+        private ICustomChromosome RunGA(GeneticAlgorithm ga, ICustomChromosome adamChromosome, string name)
         {
-            using var csv = new CsvWrapper<SingleChromosomeCsvMap, StrategyChromosome>(name);
+            using var csv = new CsvWrapper(name, adamChromosome.CsvSingleMapType, adamChromosome.CsvRecordType);
 
-            StrategyChromosome lastBest = null;
+            ICustomChromosome lastBest = null;
 
             void OnGenerationRan(object o, EventArgs eventArgs)
             {
-                var current = ga.BestChromosome as StrategyChromosome;
+                var current = ga.BestChromosome as ICustomChromosome;
                 if (current.Metadata != lastBest?.Metadata)
                 {
                     lastBest = current;
