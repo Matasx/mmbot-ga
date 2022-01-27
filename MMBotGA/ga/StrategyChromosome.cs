@@ -16,9 +16,9 @@ namespace MMBotGA.ga
 
             // max is exclusive
             Exponent = _factory.Create(() => RandomizationProvider.Current.GetDouble(1, 20));
-            Trend = _factory.Create(() => RandomizationProvider.Current.GetDouble(-100, 100));
+            Trend = _factory.Create(() => RandomizationProvider.Current.GetDouble(-110, 110));
             Rebalance = _factory.Create(() => RandomizationProvider.Current.GetInt(3, 5)); // 0-5
-            FunctionGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 3));
+            FunctionGene = _factory.Create(() => RandomizationProvider.Current.GetInt(0, 5));
             Stdev = _factory.Create(() => RandomizationProvider.Current.GetDouble(1, 240));
             Sma = _factory.Create(() => RandomizationProvider.Current.GetDouble(1, 240));
             Mult = _factory.Create(() => RandomizationProvider.Current.GetDouble(0.5, 2)); // 0.95 - 1.05
@@ -43,7 +43,7 @@ namespace MMBotGA.ga
         public GeneWrapper<double> Trend { get; }
         public GeneWrapper<int> Rebalance { get; }
 
-        private readonly string[] _functions = { "halfhalf", "keepvalue", "gauss" }; //"exponencial", "invsqrtsinh"
+        private readonly string[] _functions = { "halfhalf", "keepvalue", "gauss", "exponencial", "invsqrtsinh" };
         private GeneWrapper<int> FunctionGene { get; }
         public string Function => _functions[FunctionGene.Value];
 

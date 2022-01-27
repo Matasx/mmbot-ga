@@ -30,91 +30,19 @@ namespace MMBotGA.data.provider
             //new()
             //{
             //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("ZEC", "USDT"),
+            //    Pair = new Pair("FLUX", "USDT"),
             //    Balance = 1000
             //},
             new()
             {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("FLUX", "USDT"),
+                Exchange = Exchange.Bitfinex,
+                Pair = new Pair("ZEC", "USD"),
                 Balance = 1000
             },
             //new()
             //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("HTR", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Binance,
-            //    Pair = new Pair("LSK", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("BTC", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("ETH", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Bitfinex,
-            //    Pair = new Pair("ZEC", "USD"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("XRP", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("FTM", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("LTC", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("FLUX", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
             //    Exchange = Exchange.Binance,
             //    Pair = new Pair("AVAX", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Binance,
-            //    Pair = new Pair("BNB", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Binance,
-            //    Pair = new Pair("SOL", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Binance,
-            //    Pair = new Pair("ADA", "USDT"),
             //    Balance = 1000
             //}
         };

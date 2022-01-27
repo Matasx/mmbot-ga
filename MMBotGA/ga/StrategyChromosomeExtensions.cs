@@ -39,7 +39,7 @@ namespace MMBotGA.ga
                     Invert = false,
                     NegBal = false,
                     InitPrice = 0,
-                    Spend = true,
+                    Spend = false, // true applies to keep-value only
                     Config = new Config
                     {
                         Strategy = new Strategy
