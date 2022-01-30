@@ -30,7 +30,7 @@ namespace MMBotGA.ga
         public GeneWrapper<double> Trend { get; }
         public GeneWrapper<int> Rebalance { get; }
 
-        private readonly string[] _functions = { "halfhalf", "keepvalue", "gauss", "exponencial", "invsqrtsinh" };
+        private readonly string[] _functions = { "halfhalf", "keepvalue", "gauss", "exponencial" }; //"invsqrtsinh"
         private GeneWrapper<int> FunctionGene { get; }
         public string Function => _functions[FunctionGene.Value];
 
