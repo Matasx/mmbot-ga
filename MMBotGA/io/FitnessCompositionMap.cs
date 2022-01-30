@@ -16,6 +16,7 @@ namespace MMBotGA.io
             Map(x => x.TradeCountFactor).Index(46);
             Map(x => x.NpProfitPerYear).Index(47);
             Map(x => x.MinMaxBalanceTheBalanceFactor).Index(48);
+            Map(x => x.TightenNplRpnl).Index(49);
         }
     }
 }

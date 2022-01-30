@@ -12,5 +12,6 @@
         public double MaxCostFactor { get; set; }
         public double RpnlFactor { get; set; }
         public double MinMaxBalanceTheBalanceFactor { get; set; }
+        public double TightenNplRpnl { get; set; }
     }
 }

@@ -48,6 +48,7 @@ namespace MMBotGA.dto
 
         [JsonPropertyName("info")]
         public Info Info { get; set; }
+
         [JsonPropertyName("event")]
         public string Event { get; set; }
     }
