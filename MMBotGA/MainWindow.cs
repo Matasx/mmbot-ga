@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using GeneticSharp.Domain;
@@ -8,6 +9,7 @@ using GeneticSharp.Domain.Mutations;
 using GeneticSharp.Domain.Populations;
 using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
+using log4net;
 using MMBotGA.api;
 using MMBotGA.data.provider;
 using MMBotGA.ga;
@@ -21,6 +23,8 @@ namespace MMBotGA
 {
     internal class MainWindow
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(MainWindow));
+
         private readonly TextField _txtBatch;
         private readonly TextField _txtGeneration;
         private readonly TextField _txtFitness;
@@ -115,9 +119,8 @@ namespace MMBotGA
             var apiPool = ApiDefinitions.GetLease();
             ThreadPool.SetMinThreads(apiPool.Available, apiPool.Available);
 
-            //TODO: pick your data provider
-            var dataProvider = new FixedDataProvider();
-            //var dataProvider = new JsonConfiguredDataProvider();
+            var dataProvider = File.Exists("allocations.json") ? new JsonConfiguredDataProvider() : new FixedDataProvider();
+            Log.Info($"Data provider: {dataProvider}");
 
             var backtestBatches = dataProvider.GetBacktestData(_progressDialog);
             var controlBatches = dataProvider.GetControlData(_progressDialog); 
@@ -128,7 +131,7 @@ namespace MMBotGA
             var selection = new EliteSelection();
             var crossover = new UniformCrossover();
             var mutation = new UniformMutation(true);
-            var termination = new FitnessStagnationTermination(40);
+            var termination = new FitnessStagnationTermination(80);
             var executor = new ExactParallelTaskExecutor(apiPool.Available);
 
             var csvHandlers = new Dictionary<Tuple<Type, Type>, CsvWrapper>();

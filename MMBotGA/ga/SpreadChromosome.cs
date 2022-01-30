@@ -21,11 +21,11 @@ namespace MMBotGA.ga
             // max is exclusive
             Stdev = Factory.Create(() => RandomizationProvider.Current.GetDouble(1, 240));
             Sma = Factory.Create(() => RandomizationProvider.Current.GetDouble(1, 240));
-            Mult = Factory.Create(() => RandomizationProvider.Current.GetDouble(0.5, 2)); // 0.95 - 1.05
+            Mult = Factory.Create(() => RandomizationProvider.Current.GetDouble(0.5, 2));
             Raise = Factory.Create(() => RandomizationProvider.Current.GetDouble(1, 1000));
             Fall = Factory.Create(() => RandomizationProvider.Current.GetDouble(0.1, 10));
             Cap = Factory.Create(() => RandomizationProvider.Current.GetDouble(0, 100));
-            ModeGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, 5));
+            ModeGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, _modes.Length));
             DynMultGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
             FreezeGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
 
@@ -56,7 +56,7 @@ namespace MMBotGA.ga
         public GeneWrapper<double> Fall { get; }
         public GeneWrapper<double> Cap { get; }
 
-        private readonly string[] _modes = { "disabled", "independent", "together", "alternate", "half_alternate" };
+        private readonly string[] _modes = { "independent", "together", "alternate", "half_alternate" }; // "disabled"
         private GeneWrapper<int> ModeGene { get; }
         public string Mode => _modes[ModeGene.Value];
 

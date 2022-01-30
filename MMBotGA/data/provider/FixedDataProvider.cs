@@ -31,32 +31,38 @@ namespace MMBotGA.data.provider
         {
             new()
             {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("FLUX", "USDT"),
+                Exchange = Exchange.Ftx,
+                Pair = new Pair("FTM", "PERP"),
                 Balance = 1000
-            },
-            new()
-            {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("HTR", "USDT"),
-                Balance = 1000
-            },
-            new()
-            {
-                Exchange = Exchange.Bitfinex,
-                Pair = new Pair("ZEC", "USD"),
-                Balance = 1000,
-                // Set strategy manually and train just spread
-                AdamChromosome = new SpreadChromosome(new dto.Strategy
-                {
-                    Type = "gamma",
-                    Exponent = 7,
-                    Trend = -70,
-                    Function = "gauss",
-                    Rebalance = "3",
-                    Reinvest = false                    
-                })
-            },
+            }
+            //new()
+            //{
+            //    Exchange = Exchange.Kucoin,
+            //    Pair = new Pair("FLUX", "USDT"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Kucoin,
+            //    Pair = new Pair("HTR", "USDT"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Bitfinex,
+            //    Pair = new Pair("ZEC", "USD"),
+            //    Balance = 1000,
+            //    // Set strategy manually and train just spread
+            //    AdamChromosome = new SpreadChromosome(new dto.Strategy
+            //    {
+            //        Type = "gamma",
+            //        Exponent = 7,
+            //        Trend = -70,
+            //        Function = "gauss",
+            //        Rebalance = "3",
+            //        Reinvest = false                    
+            //    })
+            //},
             //new()
             //{
             //    Exchange = Exchange.Binance,

@@ -14,8 +14,8 @@ namespace MMBotGA.ga
             // max is exclusive
             Exponent = Factory.Create(() => RandomizationProvider.Current.GetDouble(1, 20));
             Trend = Factory.Create(() => RandomizationProvider.Current.GetDouble(-110, 110));
-            Rebalance = Factory.Create(() => RandomizationProvider.Current.GetInt(3, 5)); // 0-5
-            FunctionGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, 5));
+            Rebalance = Factory.Create(() => RandomizationProvider.Current.GetInt(3, 5)); // always/smart
+            FunctionGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, _functions.Length));
 
             //Static gene example:
             //Trend = _factory.Create(0d);
