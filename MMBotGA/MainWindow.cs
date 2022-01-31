@@ -11,6 +11,7 @@ using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
 using log4net;
 using MMBotGA.api;
+using MMBotGA.backtest;
 using MMBotGA.data.provider;
 using MMBotGA.ga;
 using MMBotGA.ga.abstraction;
@@ -28,6 +29,7 @@ namespace MMBotGA
         private readonly TextField _txtBatch;
         private readonly TextField _txtGeneration;
         private readonly TextField _txtFitness;
+        private readonly TextField _txtBacktestRate;        
         private readonly ProgressDialog _progressDialog;
         private readonly ProgressBar _totalProgressBar;
         private readonly ProgressBar _currentProgressBar;
@@ -91,9 +93,21 @@ namespace MMBotGA
                 Width = _txtBatch.Width
             };
 
+            var lblBacktestRate = new Label("Tests /sec: ")
+            {
+                Y = Pos.Bottom(lblFitness)
+            };
+            _txtBacktestRate = new TextField
+            {
+                ReadOnly = true,
+                X = _txtBatch.X,
+                Y = Pos.Top(lblBacktestRate),
+                Width = _txtBatch.Width
+            };
+
             _totalProgressBar = new ProgressBar
             {
-                Y = Pos.Bottom(lblFitness) + 1,
+                Y = Pos.Bottom(lblBacktestRate) + 1,
                 Width = Dim.Fill()
             };
             _currentProgressBar = new ProgressBar
@@ -102,7 +116,7 @@ namespace MMBotGA
                 Width = Dim.Fill()
             };
 
-            window.Add(lblGeneration, _txtGeneration, lblFitness, _txtFitness, lblBatch, _txtBatch, _totalProgressBar,
+            window.Add(lblGeneration, _txtGeneration, lblFitness, _txtFitness, lblBatch, _txtBatch, lblBacktestRate, _txtBacktestRate, _totalProgressBar,
                 _currentProgressBar);
 
             _progressDialog = new ProgressDialog(window);
@@ -216,7 +230,8 @@ namespace MMBotGA
                 Application.MainLoop.Invoke(() =>
                 {
                     _txtGeneration.Text = ga.GenerationsNumber.ToString();
-                    _txtFitness.Text = ga.BestChromosome.Fitness.Value.ToString();
+                    _txtFitness.Text = ga.BestChromosome.Fitness.Value.ToString("0.000");
+                    _txtBacktestRate.Text = BacktestStats.Rate.ToString("0.00");
                 });
             }
 

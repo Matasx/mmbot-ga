@@ -161,6 +161,7 @@ namespace MMBotGA.backtest
 
                 request.RunRequest.Source = trades.Id;
                 var response = await _api.RunAsync(request.RunRequest) ?? new List<RunResponse>();
+                BacktestStats.Add();
 
                 return new BacktestResult<ICollection<RunResponse>>(_backtest._fitnessEvaluator(request, response), response);
             }

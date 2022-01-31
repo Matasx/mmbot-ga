@@ -19,6 +19,7 @@ namespace MMBotGA.ga
 
             //Static gene example:
             //Trend = _factory.Create(0d);
+            //FunctionGene = Factory.Create(0);
 
             FinalizeGenes();
         }
