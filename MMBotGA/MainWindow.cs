@@ -205,6 +205,7 @@ namespace MMBotGA
                 _txtBatch.Text = "FINISHED";
                 _txtGeneration.Text = string.Empty;
                 _txtFitness.Text = string.Empty;
+                _txtBacktestRate.Text = string.Empty;
             });
 
             //Application.MainLoop.Invoke(() => MessageBox.Query("Information", "GA is finished.", "OK"));
