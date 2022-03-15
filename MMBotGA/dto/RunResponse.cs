@@ -46,6 +46,9 @@ namespace MMBotGA.dto
         [JsonPropertyName("upnl")]
         public double Upnl { get; set; }
 
+        /// <summary>
+        /// Note that info is specific per strategy, it is not universaly usable.
+        /// </summary>
         [JsonPropertyName("info")]
         public Info Info { get; set; }
 

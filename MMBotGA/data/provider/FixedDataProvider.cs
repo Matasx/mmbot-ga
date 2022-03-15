@@ -31,10 +31,121 @@ namespace MMBotGA.data.provider
         {
             new()
             {
-                Exchange = Exchange.Ftx,
-                Pair = new Pair("FTM", "PERP"),
-                Balance = 1000
+                Exchange = Exchange.Kucoin,
+                Pair = new Pair("HTR", "USDT"),
+                Balance = 10000
             }
+
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("FTM", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("RUNE", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("LINA", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("MATIC", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("STEP", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("ICP", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("AVAX", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("SRN", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("SAND", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("ENJ", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("DENT", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("CHZ", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("ALPHA", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("ATOM", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("SHIB", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("GRT", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("SXP", "PERP"),
+            //    Balance = 1000
+            //},
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("DOGE", "PERP"),
+            //    Balance = 1000
+            //}
+
+
             //new()
             //{
             //    Exchange = Exchange.Kucoin,
@@ -80,7 +191,7 @@ namespace MMBotGA.data.provider
                 ? DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(-60), TimeSpan.FromDays(-365))
                 : Settings.DateSettings.Backtest;
 
-            const int splits = 3;
+            const int splits = 1; // 3
 
             return Settings.Allocations
                 .Select(x =>

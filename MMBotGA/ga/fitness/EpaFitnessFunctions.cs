@@ -14,45 +14,48 @@ namespace MMBotGA.ga.fitness
             )
         {
             // continuity -> stable performance and delivery of budget extra
-            // get profit at least every 14 days
+            // get profit at least every x days
 
-            var timeFrame = results.Last().Tm - results.First().Tm; //timeFrame je delkagrafu * 60000L;
+            var firstTime = results.First().Tm;
+            var timeFrame = results.Last().Tm - firstTime;
             var frames = (int)(TimeSpan.FromMilliseconds(timeFrame).TotalDays / 25);
             if (frames == 0) return 0;
             var gk = timeFrame / frames;
-            var lastBudgetExtra = request.RunRequest.Balance; //results.First(x=>x.Info != null).Info.BudgetCurrency
+            var lastBudgetExtra = 0d;
             var minFitness = double.MaxValue;
-            var incomeFrame = 0;
-            //var fitnessSummed = 0d;
+
+            var currency = request.RunRequest.Balance;
+            var budgetExtra = 0d;
+            var extendedResults = results.Select(Result =>
+            {
+                var cost = Result.Sz * Result.Pr;
+                currency -= cost;
+                if (currency > request.RunRequest.Balance + budgetExtra)
+                {
+                    budgetExtra = currency - request.RunRequest.Balance;
+                }
+                return new { Result, BudgetExtra = budgetExtra };
+            }).ToList();
 
             for (var i = 0; i < frames; i++)
             {
-                var f0 = (gk * i) + results.First().Tm;
-                var f1 = (gk * (i + 1)) + results.First().Tm;
-                var frameTrades = results
-                    .SkipWhile(x => x.Tm < f0)
-                    .TakeWhile(x => x.Tm < f1)
+                var f0 = (gk * i) + firstTime;
+                var f1 = (gk * (i + 1)) + firstTime;
+                var frameTrades = extendedResults
+                    .SkipWhile(x => x.Result.Tm < f0)
+                    .TakeWhile(x => x.Result.Tm < f1)
                     .ToList();
 
-                //var profit = PnlProfitPerFrame(request, results);
-
-                var currentBudgetExtra = frameTrades.LastOrDefault(x => x.Info != null)?.Bal ?? lastBudgetExtra;
+                var currentBudgetExtra = frameTrades.LastOrDefault()?.BudgetExtra ?? lastBudgetExtra;
                 var tradeFactor = 1; // TradeCountFactor(frameTrades);
                 var fitness = tradeFactor * (currentBudgetExtra - lastBudgetExtra);
-
-                if (fitness > 0)
-                {
-                    incomeFrame++;
-                }
-
                 if (fitness < minFitness)
                 {
                     minFitness = fitness;
-                    //fitnessSummed = fitnessSummed + fitness;
                 }
                 lastBudgetExtra = currentBudgetExtra;
             }
-            return incomeFrame;
+            return minFitness;
         }
 
         public static FitnessComposition NpaRrr(BacktestRequest request, ICollection<RunResponse> results)
