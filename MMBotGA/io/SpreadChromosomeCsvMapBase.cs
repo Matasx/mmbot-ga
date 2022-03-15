@@ -14,16 +14,16 @@ namespace MMBotGA.io
             Map(x => x.ID).Index(0);
             Map(x => x.Generation).Index(1);
             Map(x => x.Fitness).Index(2);
-            Map(x => x.Stdev).Index(7);
-            Map(x => x.Sma).Index(8);
-            Map(x => x.Mult).Index(9);
-            Map(x => x.Raise).Index(10);
-            Map(x => x.Fall).Index(11);
-            Map(x => x.Cap).Index(12);
-            Map(x => x.Mode).Index(13);
-            Map(x => x.Freeze).Index(14);
-            Map(x => x.DynMult).Index(15);
-            Map(x => x.Metadata).Index(100);
+            Map(x => x.Stdev).Index(50);
+            Map(x => x.Sma).Index(51);
+            Map(x => x.Mult).Index(52);
+            Map(x => x.Raise).Index(53);
+            Map(x => x.Fall).Index(54);
+            Map(x => x.Cap).Index(55);
+            Map(x => x.Mode).Index(56);
+            Map(x => x.Freeze).Index(57);
+            Map(x => x.DynMult).Index(58);
+            Map(x => x.Metadata).Index(1000);
 
             if (aggregated)
             {

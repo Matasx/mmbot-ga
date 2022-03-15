@@ -6,7 +6,6 @@ using System;
 
 namespace MMBotGA.ga
 {
-
     class StrategyChromosome : SpreadChromosome
     {
         public StrategyChromosome() : base(null, false)
@@ -15,11 +14,11 @@ namespace MMBotGA.ga
             Exponent = Factory.Create(() => RandomizationProvider.Current.GetDouble(1, 20));
             Trend = Factory.Create(() => RandomizationProvider.Current.GetDouble(-110, 110));
             Rebalance = Factory.Create(() => RandomizationProvider.Current.GetInt(3, 5)); // always/smart
-            FunctionGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, _functions.Length));
+            //FunctionGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, _functions.Length));
 
             //Static gene example:
             //Trend = _factory.Create(0d);
-            //FunctionGene = Factory.Create(0);
+            FunctionGene = Factory.Create(3);
 
             FinalizeGenes();
         }

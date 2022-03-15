@@ -2,7 +2,7 @@
 
 namespace MMBotGA.dto
 {
-    public class Strategy
+    public class Strategy : IStrategy
     {
         [JsonPropertyName("type")]
         public string Type { get; set; }

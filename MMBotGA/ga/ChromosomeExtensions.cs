@@ -5,7 +5,7 @@ namespace MMBotGA.ga
 {
     internal static class ChromosomeExtensions
     {
-        public static BacktestRequest ToBacktestRequest(this SpreadChromosome chromosome, Strategy strategy)
+        public static BacktestRequest ToBacktestRequest(this SpreadChromosome chromosome, IStrategy strategy)
         {
             const bool sliding = false;
             var freeze = chromosome.Freeze;
@@ -74,6 +74,22 @@ namespace MMBotGA.ga
 
                 Exponent = chromosome.Exponent,
                 Rebalance = chromosome.Rebalance.ToString()
+            });
+        }
+
+        public static BacktestRequest ToBacktestRequest(this EpaChromosome chromosome)
+        {
+            return chromosome.ToBacktestRequest(new EpaStrategy
+            {
+                Type = "enter_price_angle",
+                Angle = chromosome.Angle,
+                ExitPowerMult = chromosome.ExitPowerMult,
+                InitialBetPercOfBudget = chromosome.InitialBetPercOfBudget,
+                MaxEnterPriceDistance = chromosome.MaxEnterPriceDistance,
+                MinAssetPercOfBudget = chromosome.MinAssetPercOfBudget,
+                PowerCap = chromosome.PowerCap,
+                PowerMult = chromosome.PowerMult,
+                TargetExitPriceDistance = chromosome.TargetExitPriceDistance
             });
         }
     }

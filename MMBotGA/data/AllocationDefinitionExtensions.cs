@@ -12,7 +12,7 @@ namespace MMBotGA.data
                 Symbol = allocationDefinition.Exchange.GetSymbol(allocationDefinition.Pair),
                 RobotSymbol = allocationDefinition.Exchange.GetRobotSymbol(allocationDefinition.Pair),
                 Balance = allocationDefinition.Balance,
-                AdamChromosome = allocationDefinition.AdamChromosome ?? new StrategyChromosome()
+                AdamChromosome = allocationDefinition.AdamChromosome ?? new EpaChromosome()
             };
         }
     }

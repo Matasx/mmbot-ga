@@ -5,7 +5,7 @@ namespace MMBotGA.dto
     public class Config
     {
         [JsonPropertyName("strategy")]
-        public Strategy Strategy { get; set; }
+        public IStrategy Strategy { get; set; }
 
         [JsonPropertyName("broker")]
         public string Broker { get; set; }
