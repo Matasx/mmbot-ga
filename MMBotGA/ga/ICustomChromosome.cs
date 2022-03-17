@@ -21,6 +21,6 @@ namespace MMBotGA.ga
 
         FitnessComposition FitnessComposition { get; set; }
 
-        BacktestRequest ToBacktestRequest();
+        BacktestRequest ToBacktestRequest(bool export);
     }
 }

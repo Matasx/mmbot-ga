@@ -39,10 +39,9 @@ namespace MMBotGA.ga.fitness
         {
             try
             {
-                var request = chromosome.ToBacktestRequest();
+                chromosome.Metadata = "{{" + Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(chromosome.ToBacktestRequest(true).RunRequest.Config, _jsonOptions))) + "}}";
 
-                chromosome.Metadata = "{{" + Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request.RunRequest.Config, _jsonOptions))) + "}}";
-
+                var request = chromosome.ToBacktestRequest(false);
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 var result = await _backtest.TestAsync(request);

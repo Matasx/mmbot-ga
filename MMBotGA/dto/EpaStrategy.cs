@@ -30,5 +30,8 @@ namespace MMBotGA.dto
 
         [JsonPropertyName("angle")]
         public double Angle { get; set; }
+
+        [JsonPropertyName("backtest")]
+        public bool Backtest { get; set; }
     }
 }

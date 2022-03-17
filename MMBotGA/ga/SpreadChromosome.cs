@@ -90,7 +90,7 @@ namespace MMBotGA.ga
 
         public override IChromosome CreateNew() => new SpreadChromosome(_strategy);
 
-        public virtual BacktestRequest ToBacktestRequest()
+        public virtual BacktestRequest ToBacktestRequest(bool export)
         {
             return ChromosomeExtensions.ToBacktestRequest(this, _strategy);
         }

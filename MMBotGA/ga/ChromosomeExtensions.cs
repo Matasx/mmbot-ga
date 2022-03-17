@@ -77,7 +77,7 @@ namespace MMBotGA.ga
             });
         }
 
-        public static BacktestRequest ToBacktestRequest(this EpaChromosome chromosome)
+        public static BacktestRequest ToBacktestRequest(this EpaChromosome chromosome, bool export)
         {
             return chromosome.ToBacktestRequest(new EpaStrategy
             {
@@ -89,7 +89,8 @@ namespace MMBotGA.ga
                 MinAssetPercOfBudget = chromosome.MinAssetPercOfBudget,
                 PowerCap = chromosome.PowerCap,
                 PowerMult = chromosome.PowerMult,
-                TargetExitPriceDistance = chromosome.TargetExitPriceDistance
+                TargetExitPriceDistance = chromosome.TargetExitPriceDistance,
+                Backtest = !export
             });
         }
     }

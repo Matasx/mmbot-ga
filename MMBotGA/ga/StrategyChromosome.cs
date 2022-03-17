@@ -46,7 +46,7 @@ namespace MMBotGA.ga
 
         public override IChromosome CreateNew() => new StrategyChromosome();
 
-        public override BacktestRequest ToBacktestRequest()
+        public override BacktestRequest ToBacktestRequest(bool export)
         {
             return ChromosomeExtensions.ToBacktestRequest(this);
         }
