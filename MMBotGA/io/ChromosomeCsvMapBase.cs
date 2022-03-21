@@ -2,7 +2,7 @@
 
 namespace MMBotGA.io
 {
-    internal class ChromosomeCsvMapBase : SpreadChromosomeCsvMapBase<StrategyChromosome>
+    internal class ChromosomeCsvMapBase : SpreadChromosomeCsvMapBase<GammaChromosome>
     {
         public ChromosomeCsvMapBase(bool aggregated) : base(aggregated)
         {

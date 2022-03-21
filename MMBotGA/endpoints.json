@@ -1,19 +1,7 @@
 [
   {
     "LeaseCount": 2,
-    "Url": "http://192.168.1.150:10000/admin/api/",
-    "Username": "",
-    "Password": ""
-  },
-  {
-    "LeaseCount": 8,
-    "Url": "http://192.168.164.128:10000/admin/api/",
-    "Username": "",
-    "Password": ""
-  },
-  {
-    "LeaseCount": 2,
-    "Url": "http://192.168.1.100:10000/admin/api/",
+    "Url": "http://172.16.9.11:81/api/admin/",
     "Username": "",
     "Password": ""
   }

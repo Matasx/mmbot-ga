@@ -63,7 +63,7 @@ namespace MMBotGA.ga
             };
         }
 
-        public static BacktestRequest ToBacktestRequest(this StrategyChromosome chromosome)
+        public static BacktestRequest ToBacktestRequest(this GammaChromosome chromosome)
         {
             return chromosome.ToBacktestRequest(new Strategy
             {
