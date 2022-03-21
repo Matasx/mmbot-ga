@@ -11,9 +11,9 @@ namespace MMBotGA.ga
     class SpreadChromosome : ChromosomeBase, ICustomChromosome
     {
         protected readonly GeneFactory Factory;
-        private readonly Strategy _strategy;
+        private readonly GammaStrategy _strategy; //Sem treba nacpat CustomStrategy
 
-        protected SpreadChromosome(Strategy fixedStrategy, bool finalize) : base(2)
+        protected SpreadChromosome(GammaStrategy fixedStrategy, bool finalize) : base(2)
         {
             _strategy = fixedStrategy;
             Factory = new GeneFactory(this);
@@ -44,7 +44,7 @@ namespace MMBotGA.ga
             CreateGenes();
         }
 
-        public SpreadChromosome(Strategy fixedStrategy) : this(fixedStrategy, true)
+        public SpreadChromosome(GammaStrategy fixedStrategy) : this(fixedStrategy, true) //Sem treba nacpat customStrategy
         { }
 
         #region Spread

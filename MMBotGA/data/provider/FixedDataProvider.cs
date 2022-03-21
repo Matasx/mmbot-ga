@@ -22,8 +22,8 @@ namespace MMBotGA.data.provider
             DateSettings = new DataProviderDateSettings
             {
                 Automatic = true,
-                Backtest = DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(-60), TimeSpan.FromDays(-365)),
-                Control = DateTimeRange.FromDiff(new DateTime(2022, 1, 4, 0,0,0, DateTimeKind.Utc), TimeSpan.FromDays(-60))
+                Backtest = DateTimeRange.FromDiff(DateTime.UtcNow.Date, TimeSpan.FromDays(-365)),
+                Control = DateTimeRange.FromDiff(DateTime.UtcNow.Date, TimeSpan.FromDays(-60))
             }
         };
 
@@ -34,144 +34,41 @@ namespace MMBotGA.data.provider
                 Exchange = Exchange.Kucoin,
                 Pair = new Pair("HTR", "USDT"),
                 Balance = 10000
-            }
-
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("FTM", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("RUNE", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("LINA", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("MATIC", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("STEP", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("ICP", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("AVAX", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("SRN", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("SAND", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("ENJ", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("DENT", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("CHZ", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("ALPHA", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("ATOM", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("SHIB", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("GRT", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("SXP", "PERP"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Ftx,
-            //    Pair = new Pair("DOGE", "PERP"),
-            //    Balance = 1000
-            //}
-
-
-            //new()
-            //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("FLUX", "USDT"),
-            //    Balance = 1000
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("HTR", "USDT"),
-            //    Balance = 1000
-            //},
+            },
             //new()
             //{
             //    Exchange = Exchange.Bitfinex,
             //    Pair = new Pair("ZEC", "USD"),
             //    Balance = 1000,
             //    // Set strategy manually and train just spread
-            //    AdamChromosome = new SpreadChromosome(new dto.Strategy
+            //    AdamChromosome = new SpreadChromosome(new dto.GammaStrategy
             //    {
             //        Type = "gamma",
             //        Exponent = 7,
             //        Trend = -70,
             //        Function = "gauss",
             //        Rebalance = "3",
-            //        Reinvest = false                    
+            //        Reinvest = false
+            //    })
+            //},
+            //new ()
+            //{
+            //    Exchange = Exchange.Bitfinex,
+            //    Pair = new Pair("ZEC", "USD"),
+            //    Balance = 1000,
+            //    // Set strategy manually and train just spread
+            //    AdamChromosome = new SpreadChromosome(new dto.EpaStrategy
+            //    {
+            //        Type = "enter_price_angle",
+            //        ExitPowerMult = 1,
+            //        InitialBetPercOfBudget = 0.1,
+            //        MaxEnterPriceDistance = 0.5,
+            //        MinAssetPercOfBudget = 0.6,
+            //        PowerCap = 0.5,
+            //        PowerMult = 0.5,
+            //        TargetExitPriceDistance = 0.6,
+            //        Angle = 0.5,
+            //        Backtest = true
             //    })
             //},
             //new()
@@ -188,7 +85,7 @@ namespace MMBotGA.data.provider
 
             var downloader = new DefaultDownloader(progressCallback);
             var backtestRange = Settings.DateSettings.Automatic
-                ? DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(-60), TimeSpan.FromDays(-365))
+                ? DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(0), TimeSpan.FromDays(-365))
                 : Settings.DateSettings.Backtest;
 
             const int splits = 1; // 3
@@ -236,25 +133,6 @@ namespace MMBotGA.data.provider
                     );
                 })
                 .ToArray();
-
-            //var partDays = (int)diff.TotalDays / splits;
-            //var overlapStart = backtestRange.Start.AddDays(partDays / 2);
-            //var parts = Enumerable
-            //    .Repeat(partDays, splits)
-            //    .Select((p, i) => DateTimeRange.FromDiff(backtestRange.Start.AddDays(p * i), TimeSpan.FromDays(p)))
-            //    .Concat(Enumerable
-            //        .Repeat(partDays, splits - 1)
-            //        .Select((p, i) => DateTimeRange.FromDiff(overlapStart.AddDays(p * i), TimeSpan.FromDays(p)))
-            //    );
-
-            //return Settings.Allocations
-            //    .Select(x => new Batch(x.ToBatchName(),
-            //        new[]
-            //        {
-            //            downloader.GetBacktestData(x, DataFolder, backtestRange, false),
-            //            downloader.GetBacktestData(x, DataFolder, backtestRange, true)
-            //        }))
-            //    .ToArray();
         }
 
         public Batch[] GetControlData(IProgress progressCallback)
