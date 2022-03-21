@@ -6,9 +6,9 @@ using System;
 
 namespace MMBotGA.ga
 {
-    class StrategyChromosome : SpreadChromosome
+    class GammaChromosome : SpreadChromosome
     {
-        public StrategyChromosome() : base(null, false)
+        public GammaChromosome() : base(null, false)
         {
             // max is exclusive
             Exponent = Factory.Create(() => RandomizationProvider.Current.GetDouble(1, 20));
@@ -40,11 +40,11 @@ namespace MMBotGA.ga
 
         public override Type CsvSingleMapType => typeof(SingleChromosomeCsvMap);
 
-        public override Type CsvRecordType => typeof(StrategyChromosome);
+        public override Type CsvRecordType => typeof(GammaChromosome);
 
         public override Gene GenerateGene(int geneIndex) => Factory.Generate(geneIndex);
 
-        public override IChromosome CreateNew() => new StrategyChromosome();
+        public override IChromosome CreateNew() => new GammaChromosome();
 
         public override BacktestRequest ToBacktestRequest(bool export)
         {
