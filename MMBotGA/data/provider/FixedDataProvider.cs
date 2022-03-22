@@ -22,7 +22,7 @@ namespace MMBotGA.data.provider
             DateSettings = new DataProviderDateSettings
             {
                 Automatic = true,
-                Backtest = DateTimeRange.FromDiff(DateTime.UtcNow.Date, TimeSpan.FromDays(-365)),
+                Backtest = DateTimeRange.FromDiff(DateTime.UtcNow.Date, TimeSpan.FromDays(-365)), //-365
                 Control = DateTimeRange.FromDiff(DateTime.UtcNow.Date, TimeSpan.FromDays(-60))
             }
         };

@@ -141,6 +141,21 @@ namespace MMBotGA.ga.fitness
             return Normalize(result, 5, 30, null);
         }
 
+        private static double PnlProfitPerYear(
+            BacktestRequest request,
+            ICollection<RunResponse> results
+        )
+        {
+            if (results.Count < 2) return 0;
+            var last = results.Last();
+            var first = results.First();
+
+            var interval = last.Tm - first.Tm;
+            var profit = Math.Max(last.Pl * 31536000000 / (interval * request.RunRequest.Balance), 0);
+
+            return profit;
+        }
+
         public static FitnessComposition NpaRrr(
             BacktestRequest request,
             ICollection<RunResponse> results
@@ -159,6 +174,8 @@ namespace MMBotGA.ga.fitness
             var eventCheck = CheckForEvents(results); //0-1, nic jiného nevrací.
             var result = new FitnessComposition();
 
+            //Multiply profit by 0.xxx of tightenNplRpnlThreshold.
+
             result.Fitness = (rrrWeight * (result.RRR = Rrr(results))
               //+ tradeCountWeight * (result.TradeCountFactor = TradeCountFactor(results))
               + tightenNplRpnlWeight * (result.TightenNplRpnl = TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold, howDeepToDive)))
@@ -167,7 +184,14 @@ namespace MMBotGA.ga.fitness
             return result;
         }
 
-        public static double Normalize(double value, double target, double virtualMax, double? cap)
+
+
+        public static double Normalize(
+            double value,
+            double target,
+            double virtualMax,
+            double? cap
+        )
         {
             if (value <= 0) return 0;
             var capped = Math.Min(value, cap ?? value);

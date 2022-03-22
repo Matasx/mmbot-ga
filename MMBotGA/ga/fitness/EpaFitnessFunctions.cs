@@ -58,6 +58,21 @@ namespace MMBotGA.ga.fitness
             return minFitness;
         }
 
+        private static double PnlProfitPerYear(
+            BacktestRequest request,
+            ICollection<RunResponse> results
+        )
+        {
+            if (results.Count < 2) return 0;
+            var last = results.Last();
+            var first = results.First();
+
+            var interval = last.Tm - first.Tm;
+            var profit = Math.Max(last.Pl * 31536000000 / (interval * request.RunRequest.Balance), 0);
+
+            return profit;
+        }
+
         private static double IncomePerDayRatio(
             ICollection<RunResponse> results
             )
@@ -98,24 +113,24 @@ namespace MMBotGA.ga.fitness
                 if (pl > 0 && np > 0)
                 {
                     goodDay += 1;
-                    double incomeThatDay = PercentageDifference(dayTrades.First().Np, dayTrades.Last().Np);
-                    if (incomeThatDay > 1)
-                    {
-                        goodDay += 1;
-                    }
                 }
             }
 
-            return (double)goodDay / totalDays;
+            return ((double)goodDay / totalDays);
         }
 
-        public static FitnessComposition NpaRrr(BacktestRequest request, ICollection<RunResponse> results)
+        public static FitnessComposition NpaRrr(
+            BacktestRequest request,
+            ICollection<RunResponse> results
+        )
         {
             if (results == null || results.Count == 0) return new FitnessComposition();
 
+            var fitka = PnlProfitPerYear(request, results) * IncomePerDayRatio(results);
+
             var result = new FitnessComposition
             {
-                Fitness = (IncomePerDayRatio(results))
+                Fitness = fitka
             };
 
             return result;
