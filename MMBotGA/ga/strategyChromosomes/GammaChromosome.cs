@@ -36,7 +36,7 @@ namespace MMBotGA.ga
 
         #endregion
 
-        public override Type CsvAggregatedMapType => typeof(AggregatedChromosomeCsvMap);
+        public override Type CsvAggregatedMapType => typeof(AggregatedGammaChromosomeCsvMap);
 
         public override Type CsvSingleMapType => typeof(SingleGammaChromosomeCsvMap);
 
