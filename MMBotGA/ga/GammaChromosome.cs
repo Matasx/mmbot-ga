@@ -38,7 +38,7 @@ namespace MMBotGA.ga
 
         public override Type CsvAggregatedMapType => typeof(AggregatedChromosomeCsvMap);
 
-        public override Type CsvSingleMapType => typeof(SingleChromosomeCsvMap);
+        public override Type CsvSingleMapType => typeof(SingleGammaChromosomeCsvMap);
 
         public override Type CsvRecordType => typeof(GammaChromosome);
 

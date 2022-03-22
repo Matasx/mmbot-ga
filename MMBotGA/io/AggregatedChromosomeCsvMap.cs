@@ -1,6 +1,6 @@
 ﻿namespace MMBotGA.io
 {
-    internal class AggregatedChromosomeCsvMap : ChromosomeCsvMapBase
+    internal class AggregatedChromosomeCsvMap : GammaChromosomeCsvMapBase
     {
         public AggregatedChromosomeCsvMap() : base(true)
         {

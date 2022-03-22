@@ -93,5 +93,19 @@ namespace MMBotGA.ga
                 Backtest = !export
             });
         }
+
+        public static BacktestRequest ToBacktestRequest(this DcaChromosome chromosome, bool export)
+        {
+            return chromosome.ToBacktestRequest(new DcaStrategy
+            {
+                Type = "inc_value",
+                Reduction = chromosome.Reduction,
+                Power = chromosome.Power,
+                Exponent = chromosome.Exponent,
+                MaxSpread = chromosome.MaxSpread,
+                ReinvestProfit = false,
+                InvertProxy = false
+            });
+        }
     }
 }

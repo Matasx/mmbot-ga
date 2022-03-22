@@ -29,12 +29,14 @@ namespace MMBotGA.data.provider
 
         private static IEnumerable<AllocationDefinition> AllocationDefinitions => new AllocationDefinition[]
         {
-            new()
-            {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("HTR", "USDT"),
-                Balance = 10000
-            },
+            //Default
+            //new()
+            //{
+            //    Exchange = Exchange.Kucoin,
+            //    Pair = new Pair("HTR", "USDT"),
+            //    Balance = 10000
+            //},
+            //GammaChromozom - Prepnuti GA do Gamma.
             //new()
             //{
             //    Exchange = Exchange.Bitfinex,
@@ -51,32 +53,22 @@ namespace MMBotGA.data.provider
             //        Reinvest = false
             //    })
             //},
-            //new ()
-            //{
-            //    Exchange = Exchange.Bitfinex,
-            //    Pair = new Pair("ZEC", "USD"),
-            //    Balance = 1000,
-            //    // Set strategy manually and train just spread
-            //    AdamChromosome = new SpreadChromosome(new dto.EpaStrategy
-            //    {
-            //        Type = "enter_price_angle",
-            //        ExitPowerMult = 1,
-            //        InitialBetPercOfBudget = 0.1,
-            //        MaxEnterPriceDistance = 0.5,
-            //        MinAssetPercOfBudget = 0.6,
-            //        PowerCap = 0.5,
-            //        PowerMult = 0.5,
-            //        TargetExitPriceDistance = 0.6,
-            //        Angle = 0.5,
-            //        Backtest = true
-            //    })
-            //},
-            //new()
-            //{
-            //    Exchange = Exchange.Binance,
-            //    Pair = new Pair("AVAX", "USDT"),
-            //    Balance = 1000
-            //}
+            //DcaChromozom - Prepnuti GA do DCA.
+            new ()
+            {
+                Exchange = Exchange.Kucoin,
+                Pair = new Pair("DGTX", "BTC"),
+                Balance = 1000,
+                // Set strategy manually and train just spread
+                AdamChromosome = new SpreadChromosome(new dto.DcaStrategy
+                {
+                    Type = "inc_value",
+                    Reduction = 0.5d,
+                    Power = 3d,
+                    Exponent = 5d,
+                    MaxSpread = 0d
+                })
+            }
         };
 
         public Batch[] GetBacktestData(IProgress progressCallback)
