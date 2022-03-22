@@ -47,7 +47,7 @@ namespace MMBotGA.ga.fitness
                     .ToList();
 
                 var currentBudgetExtra = frameTrades.LastOrDefault()?.BudgetExtra ?? lastBudgetExtra;
-                var tradeFactor = 1; // TradeCountFactor(frameTrades);
+                var tradeFactor = 1;
                 var fitness = tradeFactor * (currentBudgetExtra - lastBudgetExtra);
                 if (fitness < minFitness)
                 {
@@ -58,32 +58,85 @@ namespace MMBotGA.ga.fitness
             return minFitness;
         }
 
+        private static double IncomePerDayRatio(
+            ICollection<RunResponse> results
+            )
+        {
+            if (results.Count < 2)
+            {
+                return 0;
+            }
+
+            var firstResult = results.First();
+            var lastResult = results.Last();
+
+            var totalDays = (lastResult.Tm - firstResult.Tm) / 86400000;
+
+            if (totalDays <= 0)
+            {
+                return 0;
+            }
+
+            var backtestStartingPoint = firstResult.Tm;
+
+            double goodDay = 0;
+
+            for (var day = 0; day < totalDays; day++)
+            {
+                var firstChunkTrade = backtestStartingPoint + day * 86400000;
+                var lastChunkTrade = backtestStartingPoint + (day + 1) * 86400000;
+
+                var dayTrades = results
+                    .Where(x => x.Tm >= firstChunkTrade && x.Tm < lastChunkTrade)
+                    .ToList();
+
+                if (!dayTrades.Any()) continue;
+
+                var np = dayTrades.Last().Np - dayTrades.First().Np;
+                var pl = dayTrades.Last().Pl - dayTrades.First().Pl;
+
+                if (pl > 0 && np > 0)
+                {
+                    goodDay += 1;
+                    double incomeThatDay = PercentageDifference(dayTrades.First().Np, dayTrades.Last().Np);
+                    if (incomeThatDay > 1)
+                    {
+                        goodDay += 1;
+                    }
+                }
+            }
+
+            return (double)goodDay / totalDays;
+        }
+
         public static FitnessComposition NpaRrr(BacktestRequest request, ICollection<RunResponse> results)
         {
             if (results == null || results.Count == 0) return new FitnessComposition();
 
             var result = new FitnessComposition
             {
-                Fitness = (EvaluateFit(request, results))
+                Fitness = (IncomePerDayRatio(results))
             };
-
-            #region Outdated
-            //result.Fitness = (nppyWeight * (result.NpProfitPerYear = NormalizedProfitPerYear(request, results))
-            //  + pppyWeight * (result.PnlProfitPerYear = PnlProfitPerYear(request, results))
-            //  + ipdrWeight * (result.IncomePerDayRatio = IncomePerDayRatio(results))
-            //  + rrrWeight * (result.RRR = Rrr(results))
-            //  + tradeCountWeight * (result.TradeCountFactor = TradeCountFactor(results))
-            //  + lpoWeight * (result.LowerPositionFactor = LowerPositionOverall(request, results, balanceThreshold))
-            //  + maxCostWeight * (result.MaxCostFactor = MaxCost(request, results))
-            //  + tightenNeutralPriceWeight * (result.TightenNeutralPriceToLast = TightenNeutralPriceToLast(results, tightenNeutralPriceThreshold)))
-            //  + tightenNplRpnlWeight * (result.TightenNplRpnl = TightenNplRpnl(results, tightenNplRpnlThreshold))
-            //  * eventCheck;
-            //var fitness = (nppyEval + pppyEval + ipdrEval + rrrEval + tradeCountEval + lowerPosEval + maxCostEval + minMaxBalanceTheBalanceEval) * eventCheck;
-            //Formát výpisu zachovat, čárka a mezera se používají v LogAnalyzer.ps1 dle které se splitují hodnoty !
-            //Log.Info($"Fitness : {fitness}, nppyEval : {nppyEval}, pppyEval : {pppyEval}, ipdrEval : {ipdrEval}, rrrEval : {rrrEval}, tradeCountEval : {tradeCountEval}, lowerPosEval : {lowerPosEval}, MaxCostEval : {maxCostEval}, EventCheck : {eventCheck}");
-            #endregion
 
             return result;
         }
+
+        public static double PercentageDifference(
+            double firstValue,
+            double secondValue
+        )
+        {
+            double numerator = Math.Abs(firstValue - secondValue);
+            double denominator = (firstValue + secondValue) / 2;
+
+            if (numerator != 0)
+            {
+                double percentageDiff = (numerator / denominator) * 100;
+                return percentageDiff;
+            }
+
+            return 0;
+        }
+
     }
 }

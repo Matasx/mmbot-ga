@@ -29,12 +29,33 @@ namespace MMBotGA.data.provider
 
         private static IEnumerable<AllocationDefinition> AllocationDefinitions => new AllocationDefinition[]
         {
-            //Default
+            new()
+            {
+                Exchange = Exchange.Kucoin,
+                Pair = new Pair("DGTX", "BTC"),
+                Balance = 0.01
+            },
+
+            //EpaChromozom - Prepnuti GA do EPA.
             //new()
             //{
             //    Exchange = Exchange.Kucoin,
-            //    Pair = new Pair("HTR", "USDT"),
-            //    Balance = 10000
+            //    Pair = new Pair("DGTX", "BTC"),
+            //    Balance = 0.01,
+            //    // Set strategy manually and train just spread
+            //    AdamChromosome = new SpreadChromosome(new dto.EpaStrategy
+            //    {
+            //        Type = "enter_price_angle",
+            //        MinAssetPercOfBudget = 0.001d,
+            //        InitialBetPercOfBudget = 0.01d,
+            //        MaxEnterPriceDistance = 0.03d,
+            //        PowerMult = 1,
+            //        PowerCap = 1,
+            //        Angle = 35,
+            //        TargetExitPriceDistance = 0.01d,
+            //        ExitPowerMult = 1,
+            //        Backtest = false
+            //    })
             //},
             //GammaChromozom - Prepnuti GA do Gamma.
             //new()
@@ -54,21 +75,22 @@ namespace MMBotGA.data.provider
             //    })
             //},
             //DcaChromozom - Prepnuti GA do DCA.
-            new ()
-            {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("DGTX", "BTC"),
-                Balance = 1000,
-                // Set strategy manually and train just spread
-                AdamChromosome = new SpreadChromosome(new dto.DcaStrategy
-                {
-                    Type = "inc_value",
-                    Reduction = 0.5d,
-                    Power = 3d,
-                    Exponent = 5d,
-                    MaxSpread = 0d
-                })
-            }
+            //new ()
+            //{
+            //    Exchange = Exchange.Kucoin,
+            //    Pair = new Pair("DGTX", "BTC"),
+            //    Balance = 1000,
+            //    // Set strategy manually and train just spread
+            //    AdamChromosome = new SpreadChromosome(new dto.DcaStrategy
+            //    {
+            //        Type = "inc_value",
+            //        Reduction = 0.5d,
+            //        Power = 3d,
+            //        Exponent = 5d,
+            //        MaxSpread = 0d
+            //    })
+            //},
+            //
         };
 
         public Batch[] GetBacktestData(IProgress progressCallback)
