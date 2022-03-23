@@ -50,30 +50,29 @@ namespace MMBotGA.ga.fitness
                     if (percentageDiffCalculation > tightenNplRpnlThreshold)
                     {
 
-                        if ((index) > 0)
-                        {
-                            RunResponse whatHappenedBefore = results.ElementAt(index - 1);
-                            if (whatHappenedBefore.Pr != 0)
-                            {
-                                double prBefore = whatHappenedBefore.Pr;
-                                double prActual = result.Pr;
-                                double percentageDiffPriceCalculation = PercentageDifference(prBefore, prActual);
-                                if (percentageDiffPriceCalculation > 3.5) //Cenový rozdíl 3,5 procenta (dump/pump).
-                                {
-                                    //Nefunguje z nějakého důvodu, přestane obchodovat.
-                                    //deviatedTrades += -1;
-                                }
-                            }
-                        }
+                        //Lze nahradit IPDR.
+                        
+                        //if ((index) > 0)
+                        //{
+                        //    RunResponse whatHappenedBefore = results.ElementAt(index - 1);
+                        //    if (whatHappenedBefore.Pr != 0)
+                        //    {
+                        //        double prBefore = whatHappenedBefore.Pr;
+                        //        double prActual = result.Pr;
+                        //        double percentageDiffPriceCalculation = PercentageDifference(prBefore, prActual);
+                        //        if (percentageDiffPriceCalculation > 3.5) //Cenový rozdíl 3,5 procenta (dump/pump).
+                        //        {
+                        //            //Nefunguje z nějakého důvodu, přestane obchodovat.
+                        //            //deviatedTrades += -1;
+                        //        }
+                        //    }
+                        //}
 
                         deviatedTrades += 1;
+
                         if (GetEquityToFollow(result, tightenEquityThreshold))
                         {
                             deviatedTrades += 1;
-                            //if (TightenNeutralPriceToLast(result, tightenNeutralPriceToLastThreshold))
-                            //{
-                            //    deviatedTrades += 1;
-                            //}
                         }
                     }
 
@@ -174,12 +173,11 @@ namespace MMBotGA.ga.fitness
             var eventCheck = CheckForEvents(results); //0-1, nic jiného nevrací.
             var result = new FitnessComposition();
 
-            //Multiply profit by 0.xxx of tightenNplRpnlThreshold.
+            result.RRR = rrrWeight * Rrr(results);
+            result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold, howDeepToDive);
+            result.PnlProfitPerYear = PnlProfitPerYear(request, results);
 
-            result.Fitness = (rrrWeight * (result.RRR = Rrr(results))
-              //+ tradeCountWeight * (result.TradeCountFactor = TradeCountFactor(results))
-              + tightenNplRpnlWeight * (result.TightenNplRpnl = TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold, howDeepToDive)))
-              * eventCheck;
+            result.Fitness = result.PnlProfitPerYear * (result.RRR + result.TightenNplRpnl);
 
             return result;
         }
