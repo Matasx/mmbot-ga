@@ -18,7 +18,7 @@ namespace MMBotGA.ga
 
             //Static gene example:
             //Trend = _factory.Create(0d);
-            FunctionGene = Factory.Create(3);
+            FunctionGene = Factory.Create(1);
 
             FinalizeGenes();
         }
@@ -30,7 +30,7 @@ namespace MMBotGA.ga
         public GeneWrapper<double> Trend { get; }
         public GeneWrapper<int> Rebalance { get; }
 
-        private readonly string[] _functions = { "halfhalf", "keepvalue", "gauss", "exponencial" }; //"invsqrtsinh"
+        private readonly string[] _functions = { "halfhalf", "gauss" }; //"invsqrtsinh" "exponencial" "keepvalue"
         private GeneWrapper<int> FunctionGene { get; }
         public string Function => _functions[FunctionGene.Value];
 

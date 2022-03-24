@@ -177,6 +177,7 @@ namespace MMBotGA.ga.fitness
             result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold, howDeepToDive);
             result.PnlProfitPerYear = PnlProfitPerYear(request, results);
 
+            //it is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma. Otherwise it will explode into extreme bets, using exponencial function.
             result.Fitness = result.PnlProfitPerYear * (result.RRR + result.TightenNplRpnl);
 
             return result;

@@ -16,14 +16,17 @@ namespace MMBotGA.data.provider
     {
         private const string DataFolder = "data";
 
+        private int lookBackBacktestDays = -365; //How far do we backtest back?
+        private int lookBackControlDays = -60; //How far is the control set?
+
         protected virtual DataProviderSettings Settings => new()
         {
             Allocations = AllocationDefinitions.Select(x => x.ToAllocation()).ToArray(),
             DateSettings = new DataProviderDateSettings
             {
                 Automatic = true,
-                Backtest = DateTimeRange.FromDiff(DateTime.UtcNow.Date, TimeSpan.FromDays(-365)), //-365
-                Control = DateTimeRange.FromDiff(DateTime.UtcNow.Date, TimeSpan.FromDays(-60))
+                Backtest = DateTimeRange.FromDiff(DateTime.UtcNow.Date, TimeSpan.FromDays(lookBackBacktestDays)),
+                Control = DateTimeRange.FromDiff(DateTime.UtcNow.Date, TimeSpan.FromDays(lookBackControlDays))
             }
         };
 
@@ -31,9 +34,9 @@ namespace MMBotGA.data.provider
         {
             new()
             {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("DGTX", "BTC"),
-                Balance = 0.01
+                Exchange = Exchange.Ftx,
+                Pair = new Pair("ALPHA", "PERP"),
+                Balance = 1500
             },
 
             //EpaChromozom - Prepnuti GA do EPA.
@@ -99,7 +102,7 @@ namespace MMBotGA.data.provider
 
             var downloader = new DefaultDownloader(progressCallback);
             var backtestRange = Settings.DateSettings.Automatic
-                ? DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(0), TimeSpan.FromDays(-365))
+                ? DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(0), TimeSpan.FromDays(lookBackBacktestDays))
                 : Settings.DateSettings.Backtest;
 
             const int splits = 1; // 3
@@ -153,7 +156,7 @@ namespace MMBotGA.data.provider
         {
             var downloader = new DefaultDownloader(progressCallback);
             var controlRange = Settings.DateSettings.Automatic
-                ? DateTimeRange.FromUtcToday(TimeSpan.FromDays(-60))
+                ? DateTimeRange.FromUtcToday(TimeSpan.FromDays(lookBackControlDays))
                 : Settings.DateSettings.Control;
 
             return Settings.Allocations
