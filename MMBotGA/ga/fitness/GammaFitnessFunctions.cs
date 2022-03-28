@@ -40,17 +40,16 @@ namespace MMBotGA.ga.fitness
 
             foreach (var result in results)
             {
+
                 double npl = result.Npl;
                 double rpnl = result.Rpnl;
                 double tradeSize = result.Sz;
                 double percentageDiffCalculation = PercentageDifference(npl, rpnl);
+
                 if (tradeSize != 0)
                 {
                     if (percentageDiffCalculation > tightenNplRpnlThreshold)
                     {
-
-                        //Lze nahradit IPDR.
-
                         deviatedTrades += 1;
 
                         if (GetEquityToFollow(result, tightenEquityThreshold))
@@ -64,9 +63,11 @@ namespace MMBotGA.ga.fitness
                         double budgetCurrent = result.Info.BudgetCurrent;
                         double budgetMax = result.Info.BudgetMax;
                         double percentageDiffBudgetCalc = PercentageDifference(budgetCurrent, budgetMax);
+
+                        //if (percentageDiffBudgetCalc > howDeepToDive) { deviatedTrades += 1; }
                     }
                 }
-                if (tradeSize == 0) { deviatedTrades += 2; }
+                if (tradeSize == 0) { deviatedTrades += 1.5; }
                 index++;
             }
 
@@ -136,36 +137,85 @@ namespace MMBotGA.ga.fitness
             return profit;
         }
 
-        private static double TradeCountFactor(
+        private static double IncomePerDayRatio(
             ICollection<RunResponse> results
         )
         {
-            if (results.Count < 2) return 0;
-            var last = results.Last();
-            var first = results.First();
-
-            var trades = results.Count(x => x.Sz != 0);
-            var alerts = 1 - (results.Count - trades) / (double)results.Count;
-
-            if (trades == 0 || alerts / trades > 0.02) return 0; //alerts / trades > 0.02
-
-            var days = (last.Tm - first.Tm) / 86400000d;
-            var tradesPerDay = trades / days;
-            var tradesPerYear = tradesPerDay * 365;
-
-            if (tradesPerYear > 3300) {
-                return 1;
+            if (results.Count < 2)
+            {
+                return 0;
             }
 
-            const int mean = 9;
-            const int delta = 2; // target trade range is 9 - 23 trades per day
+            var firstResult = results.First();
+            var lastResult = results.Last();
 
-            var x = Math.Abs(tradesPerDay - mean); // 0 - inf, 0 is best
-            var y = Math.Max(x - delta, 0) + 1; // 1 - inf, 1 is best ... 
-            var r = 1 / y;
+            var totalDays = (lastResult.Tm - firstResult.Tm) / 86400000;
 
-            return r * alerts;
+            if (totalDays <= 0)
+            {
+                return 0;
+            }
+
+            var backtestStartingPoint = firstResult.Tm;
+
+            var goodDay = 0;
+            for (var day = 0; day < totalDays; day++)
+            {
+                var firstChunkTrade = backtestStartingPoint + day * 86400000;
+                var lastChunkTrade = backtestStartingPoint + (day + 1) * 86400000;
+
+                var dayTrades = results
+                    .Where(x => x.Tm >= firstChunkTrade && x.Tm < lastChunkTrade)
+                    .ToList();
+
+                if (!dayTrades.Any()) continue;
+
+                var np = dayTrades.Last().Np - dayTrades.First().Np;
+                var pl = dayTrades.Last().Pl - dayTrades.First().Pl;
+
+                if (pl > 0 && np > 0)
+                {
+                    goodDay++;
+                }
+            }
+
+            return (double)goodDay / totalDays;
         }
+
+        //private static double TradeCountFactor(
+        //    ICollection<RunResponse> results
+        //)
+        //{
+        //    if (results.Count < 2) return 0;
+        //    var last = results.Last();
+        //    var first = results.First();
+
+        //    var trades = results.Count(x => x.Sz != 0);
+        //    var alerts = 1 - (results.Count - trades) / (double)results.Count;
+
+        //    if (trades == 0 || alerts / trades > 0.02) return 0; //alerts / trades > 0.02
+
+        //    var days = (last.Tm - first.Tm) / 86400000d;
+        //    var tradesPerDay = trades / days;
+        //    var tradesPerYear = tradesPerDay * 365;
+
+        //    if (tradesPerYear > 3300)
+        //    {
+        //        return 1;
+        //    } else
+        //    {
+        //        return 0;
+        //    }
+
+        //    //const int mean = 9;
+        //    //const int delta = 2; // target trade range is 9 - 23 trades per day
+
+        //    //var x = Math.Abs(tradesPerDay - mean); // 0 - inf, 0 is best
+        //    //var y = Math.Max(x - delta, 0) + 1; // 1 - inf, 1 is best ... 
+        //    //var r = 1 / y;
+
+        //    //return r * alerts;
+        //}
 
         public static FitnessComposition NpaRrr(
             BacktestRequest request,
@@ -173,27 +223,35 @@ namespace MMBotGA.ga.fitness
         )
         {
             if (results == null || results.Count == 0) return new FitnessComposition();
-            const double rrrWeight = 0.10;
-            const double tightenNplRpnlWeight = 0.60;
-            const double tradeCountWeight = 0.30;
 
-            const double tightenNplRpnlThreshold = 1.5; // % oscilace profit&loss kolem normalized profit.
-            const double tightenEquityThreshold = 3;
-            //const double howDeepToDive = 20;
+
+            const double rrrWeight = 0.1;
+            const double tightenNplRpnlWeight = 0.3;
+            const double ipdrWeight = 0.6;
+
+            const double tightenNplRpnlThreshold = 1; // % oscilace profit&loss kolem normalized profit.
+            const double tightenEquityThreshold = 1;
 
             var eventCheck = CheckForEvents(results); //0-1, nic jiného nevrací.
             var result = new FitnessComposition();
 
+
+
             result.RRR = rrrWeight * Rrr(results);
             result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold);
             result.PnlProfitPerYear = PnlProfitPerYear(request, results);
-            result.TradeCountFactor = tradeCountWeight * TradeCountFactor(results); //Necessary for pairs that are not SHIT/BTC. 
+            result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);
+            //result.TradeCountFactor = TradeCountFactor(results); //Necessary for pairs that are not SHIT/BTC. 
 
-            //it is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma. Otherwise it will explode into extreme bets, using exponencial function.
-            result.Fitness = result.PnlProfitPerYear * (result.RRR + result.TightenNplRpnl);// * result.TradeCountFactor);
+            //It is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma.
+            //Otherwise it will explode into extreme bets, using exponencial function.
+            result.Fitness = result.PnlProfitPerYear * (result.TightenNplRpnl + result.RRR + result.IncomePerDayRatio);
 
             return result;
         }
+
+
+
 
         public static double Normalize(
             double value,

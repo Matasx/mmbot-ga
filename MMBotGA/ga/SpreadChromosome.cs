@@ -21,7 +21,7 @@ namespace MMBotGA.ga
             // max is exclusive
             Stdev = Factory.Create(() => RandomizationProvider.Current.GetDouble(1, 240));
             Sma = Factory.Create(() => RandomizationProvider.Current.GetDouble(1, 240));
-            Mult = Factory.Create(() => RandomizationProvider.Current.GetDouble(0.5, 2));
+            Mult = Factory.Create(() => RandomizationProvider.Current.GetDouble(0.1, 1.9));
             Raise = Factory.Create(() => RandomizationProvider.Current.GetDouble(1, 1000));
             Fall = Factory.Create(() => RandomizationProvider.Current.GetDouble(0.1, 10));
             Cap = Factory.Create(() => RandomizationProvider.Current.GetDouble(0, 100));

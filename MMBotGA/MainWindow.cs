@@ -145,7 +145,7 @@ namespace MMBotGA
             var selection = new EliteSelection();
             var crossover = new UniformCrossover();
             var mutation = new UniformMutation(true);
-            var termination = new FitnessStagnationTermination(80);
+            var termination = new FitnessStagnationTermination(999);
             var executor = new ExactParallelTaskExecutor(apiPool.Available);
 
             var csvHandlers = new Dictionary<Tuple<Type, Type>, CsvWrapper>();
@@ -161,7 +161,7 @@ namespace MMBotGA
                     _txtFitness.Text = string.Empty;
                 });
 
-                var population = new Population(500, 3000, batch.AdamChromosome);
+                var population = new Population(1500, 3000, batch.AdamChromosome);
                 var ga = new GeneticAlgorithm(population, batch.ToFitness(_currentProgressBar, apiPool),
                     selection, crossover,
                     mutation)
