@@ -28,8 +28,7 @@ namespace MMBotGA.ga.fitness
         public static double TightenNplRpnlSubmergedFunction(
             ICollection<RunResponse> results,
             double tightenNplRpnlThreshold,
-            double tightenEquityThreshold,
-            double howDeepToDive
+            double tightenEquityThreshold
         )
         {
             if (results.Count == 0) { return 0; }
@@ -65,11 +64,9 @@ namespace MMBotGA.ga.fitness
                         double budgetCurrent = result.Info.BudgetCurrent;
                         double budgetMax = result.Info.BudgetMax;
                         double percentageDiffBudgetCalc = PercentageDifference(budgetCurrent, budgetMax);
-
-                        if (percentageDiffBudgetCalc > howDeepToDive) { deviatedTrades += 1; }
                     }
                 }
-                if (tradeSize == 0) { deviatedTrades += 1.5; }
+                if (tradeSize == 0) { deviatedTrades += 2; }
                 index++;
             }
 
@@ -138,6 +135,7 @@ namespace MMBotGA.ga.fitness
 
             return profit;
         }
+
         private static double TradeCountFactor(
             ICollection<RunResponse> results
         )
@@ -175,33 +173,27 @@ namespace MMBotGA.ga.fitness
         )
         {
             if (results == null || results.Count == 0) return new FitnessComposition();
-
-
-            const double rrrWeight = 0.20;
-            const double tightenNplRpnlWeight = 0.80;
+            const double rrrWeight = 0.10;
+            const double tightenNplRpnlWeight = 0.60;
+            const double tradeCountWeight = 0.30;
 
             const double tightenNplRpnlThreshold = 1.5; // % oscilace profit&loss kolem normalized profit.
             const double tightenEquityThreshold = 3;
-            const double howDeepToDive = 20;
+            //const double howDeepToDive = 20;
 
             var eventCheck = CheckForEvents(results); //0-1, nic jiného nevrací.
             var result = new FitnessComposition();
 
-
-
             result.RRR = rrrWeight * Rrr(results);
-            result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold, howDeepToDive);
+            result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold);
             result.PnlProfitPerYear = PnlProfitPerYear(request, results);
-            result.TradeCountFactor = TradeCountFactor(results); //Necessary for pairs that are not SHIT/BTC. 
+            result.TradeCountFactor = tradeCountWeight * TradeCountFactor(results); //Necessary for pairs that are not SHIT/BTC. 
 
             //it is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma. Otherwise it will explode into extreme bets, using exponencial function.
-            result.Fitness = result.PnlProfitPerYear * ((result.RRR + result.TightenNplRpnl) * result.TradeCountFactor);
+            result.Fitness = result.PnlProfitPerYear * (result.RRR + result.TightenNplRpnl);// * result.TradeCountFactor);
 
             return result;
         }
-
-
-
 
         public static double Normalize(
             double value,
