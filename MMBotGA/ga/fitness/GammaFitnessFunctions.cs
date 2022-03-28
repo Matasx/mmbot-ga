@@ -51,22 +51,6 @@ namespace MMBotGA.ga.fitness
                     {
 
                         //Lze nahradit IPDR.
-                        
-                        //if ((index) > 0)
-                        //{
-                        //    RunResponse whatHappenedBefore = results.ElementAt(index - 1);
-                        //    if (whatHappenedBefore.Pr != 0)
-                        //    {
-                        //        double prBefore = whatHappenedBefore.Pr;
-                        //        double prActual = result.Pr;
-                        //        double percentageDiffPriceCalculation = PercentageDifference(prBefore, prActual);
-                        //        if (percentageDiffPriceCalculation > 3.5) //Cenový rozdíl 3,5 procenta (dump/pump).
-                        //        {
-                        //            //Nefunguje z nějakého důvodu, přestane obchodovat.
-                        //            //deviatedTrades += -1;
-                        //        }
-                        //    }
-                        //}
 
                         deviatedTrades += 1;
 
