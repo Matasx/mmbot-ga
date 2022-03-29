@@ -56,7 +56,7 @@ namespace MMBotGA.dto
         public string Source { get; set; }
 
         [JsonPropertyName("order2")]
-        public int Order2 { get; set; }
+        public double Order2 { get; set; }
 
         [JsonPropertyName("offset")]
         public int? Offset { get; set; }

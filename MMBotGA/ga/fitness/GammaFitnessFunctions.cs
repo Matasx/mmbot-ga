@@ -182,40 +182,27 @@ namespace MMBotGA.ga.fitness
             return (double)goodDay / totalDays;
         }
 
-        //private static double TradeCountFactor(
-        //    ICollection<RunResponse> results
-        //)
-        //{
-        //    if (results.Count < 2) return 0;
-        //    var last = results.Last();
-        //    var first = results.First();
 
-        //    var trades = results.Count(x => x.Sz != 0);
-        //    var alerts = 1 - (results.Count - trades) / (double)results.Count;
 
-        //    if (trades == 0 || alerts / trades > 0.02) return 0; //alerts / trades > 0.02
+        private static double ensureMinimumTradeCount(
+            ICollection<RunResponse> results,
+            int tradesPerDayThreshold
+        )
+        {
+            if (results.Count < 2) return 0;
+            var last = results.Last();
+            var first = results.First();
 
-        //    var days = (last.Tm - first.Tm) / 86400000d;
-        //    var tradesPerDay = trades / days;
-        //    var tradesPerYear = tradesPerDay * 365;
+            var trades = results.Count(x => x.Sz != 0);
+            var alerts = 1 - (results.Count - trades) / (double)results.Count;
 
-        //    if (tradesPerYear > 3300)
-        //    {
-        //        return 1;
-        //    } else
-        //    {
-        //        return 0;
-        //    }
+            if (trades == 0 || alerts / trades > 0.02) return 0; //alerts / trades > 0.02
 
-        //    //const int mean = 9;
-        //    //const int delta = 2; // target trade range is 9 - 23 trades per day
+            var days = (last.Tm - first.Tm) / 86400000d;
+            var tradesPerDay = trades / days;
 
-        //    //var x = Math.Abs(tradesPerDay - mean); // 0 - inf, 0 is best
-        //    //var y = Math.Max(x - delta, 0) + 1; // 1 - inf, 1 is best ... 
-        //    //var r = 1 / y;
-
-        //    //return r * alerts;
-        //}
+            if (tradesPerDay > tradesPerDayThreshold) { return 1; } else { return 0; }
+        }
 
         public static FitnessComposition NpaRrr(
             BacktestRequest request,
@@ -245,7 +232,8 @@ namespace MMBotGA.ga.fitness
 
             //It is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma.
             //Otherwise it will explode into extreme bets, using exponencial function.
-            result.Fitness = result.PnlProfitPerYear * (result.TightenNplRpnl + result.RRR + result.IncomePerDayRatio);
+            //Also this fitness neeeds a kickstart in form of a ensureMinimumTradeCount(results, minimum trades per day), which multiplies the whole result (e.g. if under minTradesPerDay, whole results is 0). 
+            result.Fitness = (result.PnlProfitPerYear * (result.TightenNplRpnl + result.RRR + result.IncomePerDayRatio)) * ensureMinimumTradeCount(results, 8);
 
             return result;
         }

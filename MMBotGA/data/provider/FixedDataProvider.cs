@@ -34,9 +34,9 @@ namespace MMBotGA.data.provider
         {
             new()
             {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("WIN", "BTC"),
-                Balance = 0.01
+                Exchange = Exchange.Ftx,
+                Pair = new Pair("SHIB", "PERP"),
+                Balance = 1000
             },
 
             //EpaChromozom - Prepnuti GA do EPA.

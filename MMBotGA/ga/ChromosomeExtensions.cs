@@ -29,7 +29,7 @@ namespace MMBotGA.ga
                     Reverse = false,
                     Invert = false,
                     Ifutures = false,
-                    // Order2 = 50
+                    Order2 = chromosome.SecondaryOrder
                 },
                 RunRequest = new RunRequest
                 {
@@ -57,7 +57,7 @@ namespace MMBotGA.ga
                         DynmultCap = chromosome.Cap,
                         SellStepMult = chromosome.Mult,
                         BuyStepMult = chromosome.Mult,
-                        //SecondaryOrder = 50,
+                        SecondaryOrder = chromosome.SecondaryOrder,
                     }
                 }
             };

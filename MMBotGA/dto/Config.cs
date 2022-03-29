@@ -77,7 +77,7 @@ namespace MMBotGA.dto
         public int MaxLeverage { get; set; }
 
         [JsonPropertyName("secondary_order")]
-        public int SecondaryOrder { get; set; }
+        public double SecondaryOrder { get; set; }
 
         [JsonPropertyName("internal_balance")]
         public bool InternalBalance { get; set; }
@@ -96,5 +96,8 @@ namespace MMBotGA.dto
 
         [JsonPropertyName("reduce_on_leverage")]
         public bool ReduceOnLeverage { get; set; }
+
+        [JsonPropertyName("order2")]
+        public double Order2 { get; set; }
     }
 }

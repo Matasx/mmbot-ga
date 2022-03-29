@@ -28,9 +28,10 @@ namespace MMBotGA.ga
             ModeGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, _modes.Length));
             DynMultGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
             FreezeGene = Factory.Create(() => RandomizationProvider.Current.GetInt(0, 2));
+            //SecondaryOrder = Factory.Create(() => RandomizationProvider.Current.GetDouble(0,200));
 
             //Static gene example:
-            //Trend = _factory.Create(0d);
+            SecondaryOrder = Factory.Create(0d);
 
             if (finalize)
             {
@@ -65,6 +66,8 @@ namespace MMBotGA.ga
 
         private GeneWrapper<int> FreezeGene { get; }
         public bool Freeze => FreezeGene.Value == 1;
+
+        public GeneWrapper<double> SecondaryOrder { get; }
 
         #endregion
 
