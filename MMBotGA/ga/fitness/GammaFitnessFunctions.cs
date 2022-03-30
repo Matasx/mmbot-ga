@@ -67,7 +67,7 @@ namespace MMBotGA.ga.fitness
                         //if (percentageDiffBudgetCalc > howDeepToDive) { deviatedTrades += 1; }
                     }
                 }
-                if (tradeSize == 0) { deviatedTrades += 1.5; }
+                if (tradeSize == 0) { deviatedTrades += 2; }
                 index++;
             }
 
@@ -228,12 +228,16 @@ namespace MMBotGA.ga.fitness
             result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold);
             result.PnlProfitPerYear = PnlProfitPerYear(request, results);
             result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);
+
+            var fitnessExponent = result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio;
+            result.Fitness = Math.Pow(result.PnlProfitPerYear, fitnessExponent);
+
             //result.TradeCountFactor = TradeCountFactor(results); //Necessary for pairs that are not SHIT/BTC. 
 
             //It is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma.
             //Otherwise it will explode into extreme bets, using exponencial function.
             //Also this fitness neeeds a kickstart in form of a ensureMinimumTradeCount(results, minimum trades per day), which multiplies the whole result (e.g. if under minTradesPerDay, whole results is 0). 
-            result.Fitness = (result.PnlProfitPerYear * (result.TightenNplRpnl + result.RRR + result.IncomePerDayRatio)) * ensureMinimumTradeCount(results, 8);
+            //result.Fitness = (result.PnlProfitPerYear * (result.TightenNplRpnl + result.RRR + result.IncomePerDayRatio)) * ensureMinimumTradeCount(results, 8);
 
             return result;
         }
