@@ -35,7 +35,7 @@ namespace MMBotGA.data.provider
             new()
             {
                 Exchange = Exchange.Kucoin,
-                Pair = new Pair("TOKO", "BTC"),
+                Pair = new Pair("WIN", "BTC"),
                 Balance = 0.01
             },
 
