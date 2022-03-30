@@ -11,7 +11,7 @@ namespace MMBotGA.io
     {
         public SpreadChromosomeCsvMapBase(bool aggregated)
         {
-            Map(x => x.ID).Index(0);
+            //Map(x => x.ID).Index(0);
             Map(x => x.Generation).Index(1);
             Map(x => x.Fitness).Index(2);
             //Map(x => x.Stdev).Index(50);
