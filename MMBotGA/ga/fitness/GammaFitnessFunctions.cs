@@ -223,10 +223,9 @@ namespace MMBotGA.ga.fitness
             var result = new FitnessComposition();
 
 
-
             result.RRR = rrrWeight * Rrr(results);
             result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold);
-            result.PnlProfitPerYear = PnlProfitPerYear(request, results);
+            result.PnlProfitPerYear = PnlProfitPerYear(request, results) * 100; //real percentage, not decimal with 1 being 100%.
             result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);
 
             var fitnessExponent = result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio;
