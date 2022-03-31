@@ -119,7 +119,7 @@ namespace MMBotGA.ga.fitness
             }
 
             var result = Math.Max(maxPl / maxDowndraw, 0);
-            return Normalize(result, 5, 30, null);
+            return Normalize(result, 5, 15, null);
         }
 
         private static double PnlProfitPerYear(
@@ -132,9 +132,14 @@ namespace MMBotGA.ga.fitness
             var first = results.First();
 
             var interval = last.Tm - first.Tm;
-            var profit = Math.Max(last.Pl * 31536000000 / (interval * request.RunRequest.Balance), 0);
+            var profit = (Math.Max(last.Pl * 31536000000 / (interval * request.RunRequest.Balance), 0)) * 100;
 
-            return profit;
+            //profitTriangle
+            double xDiff = (interval / 86400000) - 1;
+            double yDiff = profit - 0;
+            var profitTriangle = Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
+
+            return profitTriangle;
         }
 
         private static double IncomePerDayRatio(
@@ -182,8 +187,6 @@ namespace MMBotGA.ga.fitness
             return (double)goodDay / totalDays;
         }
 
-
-
         private static double ensureMinimumTradeCount(
             ICollection<RunResponse> results,
             int tradesPerDayThreshold
@@ -224,29 +227,11 @@ namespace MMBotGA.ga.fitness
 
             result.RRR = rrrWeight * Rrr(results);
             result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold);
-            result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);            
+            result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);
+            result.PnlProfitPerYear = PnlProfitPerYear(request, results);
 
-            var fitnessReach = result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio;
-            //var ppyCalc = Math.Pow((PnlProfitPerYear(request, results) * 100), ppyExponent);
-
-            //if (Double.IsInfinity(ppyCalc)) { result.PnlProfitPerYear = 0; }
-            //else { result.PnlProfitPerYear = ppyCalc; }
-
-            #region NextPhaseOfCalculation
-            if (fitnessReach > 0.45) //Heavily depends on tradeable pair.
-            {
-                //Solve Income
-                var pnlProfitPerYear = PnlProfitPerYear(request, results);
-                if (Double.IsInfinity(pnlProfitPerYear)) 
-                { result.Fitness = fitnessReach; } 
-                else 
-                { result.Fitness = fitnessReach * pnlProfitPerYear; }
-
-            } else
-            {
-                result.Fitness = fitnessReach;
-            }
-            #endregion
+            var fitnessReach = result.PnlProfitPerYear * (result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio);
+            result.Fitness = fitnessReach;
 
             //It is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma.
             //Otherwise it will explode into extreme bets, using exponencial function.
@@ -255,9 +240,6 @@ namespace MMBotGA.ga.fitness
 
             return result;
         }
-
-
-
 
         public static double Normalize(
             double value,
