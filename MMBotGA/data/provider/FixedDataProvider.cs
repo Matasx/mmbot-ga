@@ -32,13 +32,18 @@ namespace MMBotGA.data.provider
 
         private static IEnumerable<AllocationDefinition> AllocationDefinitions => new AllocationDefinition[]
         {
+            //new()
+            //{
+            //    Exchange = Exchange.Kucoin,
+            //    Pair = new Pair("TOKO", "BTC"),
+            //    Balance = 0.01
+            //},
             new()
             {
-                Exchange = Exchange.Kucoin,
-                Pair = new Pair("TOKO", "BTC"),
-                Balance = 0.01
+                Exchange = Exchange.Ftx,
+                Pair = new Pair("FTM", "PERP"),
+                Balance = 1000
             },
-
             //EpaChromozom - Prepnuti GA do EPA.
             //new()
             //{
@@ -105,7 +110,7 @@ namespace MMBotGA.data.provider
                 ? DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(0), TimeSpan.FromDays(lookBackBacktestDays))
                 : Settings.DateSettings.Backtest;
 
-            const int splits = 3; // 3
+            const int splits = 1; // 3
 
             return Settings.Allocations
                 .Select(x =>
