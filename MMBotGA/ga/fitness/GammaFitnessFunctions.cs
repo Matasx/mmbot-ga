@@ -67,12 +67,12 @@ namespace MMBotGA.ga.fitness
                         //if (percentageDiffBudgetCalc > howDeepToDive) { deviatedTrades += 1; }
                     }
                 }
-                if (tradeSize == 0) { deviatedTrades += 2; }
+                if (tradeSize == 0) { 
+                    deviatedTrades += 1.5;
+                }
                 index++;
             }
 
-            //slouží jako ratio. deviatedTrades může mít za jeden trade skóre až 3, přičemž se mu snižuje celková fitness na základě odpočtu
-            //od celkového počtu obchodů.
             double deviatedTradesRatio = deviatedTrades / resultsCounted;
             double deviationThresholdActual = 1 - deviatedTradesRatio;
             return deviationThresholdActual;
@@ -216,23 +216,23 @@ namespace MMBotGA.ga.fitness
             const double tightenNplRpnlWeight = 0.3;
             const double ipdrWeight = 0.6;
 
-            const double tightenNplRpnlThreshold = 1; // % oscilace profit&loss kolem normalized profit.
-            const double tightenEquityThreshold = 1;
+            const double tightenNplRpnlThreshold = 2; // % oscilace profit&loss kolem normalized profit.
+            const double tightenEquityThreshold = 2;
 
             var eventCheck = CheckForEvents(results); //0-1, nic jiného nevrací.
             var result = new FitnessComposition();
 
-
             result.RRR = rrrWeight * Rrr(results);
             result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold);
-            result.PnlProfitPerYear = PnlProfitPerYear(request, results) * 100; //real percentage, not decimal with 1 being 100%.
-            result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);
+            result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);            
 
-            var fitnessExponent = result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio;
-            result.Fitness = Math.Pow(result.PnlProfitPerYear, fitnessExponent);
+            var ppyExponent = result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio;
+            var ppyCalc = Math.Pow((PnlProfitPerYear(request, results) * 100), ppyExponent);
 
-            //result.TradeCountFactor = TradeCountFactor(results); //Necessary for pairs that are not SHIT/BTC. 
+            if (Double.IsInfinity(ppyCalc)) { result.PnlProfitPerYear = 0; }
+            else { result.PnlProfitPerYear = ppyCalc; }
 
+            result.Fitness = result.PnlProfitPerYear;
             //It is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma.
             //Otherwise it will explode into extreme bets, using exponencial function.
             //Also this fitness neeeds a kickstart in form of a ensureMinimumTradeCount(results, minimum trades per day), which multiplies the whole result (e.g. if under minTradesPerDay, whole results is 0). 

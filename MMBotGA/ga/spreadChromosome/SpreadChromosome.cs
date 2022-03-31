@@ -57,7 +57,7 @@ namespace MMBotGA.ga
         public GeneWrapper<double> Fall { get; }
         public GeneWrapper<double> Cap { get; }
 
-        private readonly string[] _modes = { "independent", "together", "alternate", "half_alternate" }; // "disabled"
+        private readonly string[] _modes = { "disabled", "independent", "together", "alternate", "half_alternate" }; // "disabled"
         private GeneWrapper<int> ModeGene { get; }
         public string Mode => _modes[ModeGene.Value];
 
