@@ -226,14 +226,28 @@ namespace MMBotGA.ga.fitness
             result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold);
             result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);            
 
-            var ppyExponent = result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio;
-
+            var fitnessReach = result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio;
             //var ppyCalc = Math.Pow((PnlProfitPerYear(request, results) * 100), ppyExponent);
 
             //if (Double.IsInfinity(ppyCalc)) { result.PnlProfitPerYear = 0; }
             //else { result.PnlProfitPerYear = ppyCalc; }
 
-            result.Fitness = ppyExponent;
+            #region NextPhaseOfCalculation
+            if (fitnessReach > 0.45) //Heavily depends on tradeable pair.
+            {
+                //Solve Income
+                var pnlProfitPerYear = PnlProfitPerYear(request, results);
+                if (Double.IsInfinity(pnlProfitPerYear)) 
+                { result.Fitness = fitnessReach; } 
+                else 
+                { result.Fitness = fitnessReach * pnlProfitPerYear; }
+
+            } else
+            {
+                result.Fitness = fitnessReach;
+            }
+            #endregion
+
             //It is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma.
             //Otherwise it will explode into extreme bets, using exponencial function.
             //Also this fitness neeeds a kickstart in form of a ensureMinimumTradeCount(results, minimum trades per day), which multiplies the whole result (e.g. if under minTradesPerDay, whole results is 0). 
