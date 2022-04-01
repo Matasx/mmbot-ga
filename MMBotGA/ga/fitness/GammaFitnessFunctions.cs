@@ -119,7 +119,7 @@ namespace MMBotGA.ga.fitness
             }
 
             var result = Math.Max(maxPl / maxDowndraw, 0);
-            return Normalize(result, 5, 15, null);
+            return Normalize(result, 5, 10, null);
         }
 
         private static double PnlProfitPerYear(
@@ -135,11 +135,19 @@ namespace MMBotGA.ga.fitness
             var profit = (Math.Max(last.Pl * 31536000000 / (interval * request.RunRequest.Balance), 0)) * 100;
 
             //profitTriangle
-            double xDiff = (interval / 86400000) - 1;
-            double yDiff = profit - 0;
-            var profitTriangle = Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
+            double xDiff = (interval / 86400000);// - 1;
+            double yDiff = profit;// - 0;
+            var profitAngle = Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
 
-            return profitTriangle;
+
+            //                      /|
+            //                  /    |
+            //              /      profit
+            //          /            |
+            //      / pAngle         |
+            //      ------days-------
+
+            return profitAngle;
         }
 
         private static double IncomePerDayRatio(
@@ -215,12 +223,12 @@ namespace MMBotGA.ga.fitness
             if (results == null || results.Count == 0) return new FitnessComposition();
 
 
-            const double rrrWeight = 0.1;
-            const double tightenNplRpnlWeight = 0.3;
-            const double ipdrWeight = 0.6;
+            const double rrrWeight = 0.2;
+            const double tightenNplRpnlWeight = 0.8;
+            const double ipdrWeight = 0.2;
 
-            const double tightenNplRpnlThreshold = 2; // % oscilace profit&loss kolem normalized profit.
-            const double tightenEquityThreshold = 2;
+            const double tightenNplRpnlThreshold = 1; // % oscilace profit&loss kolem normalized profit.
+            const double tightenEquityThreshold = 1;
 
             var eventCheck = CheckForEvents(results); //0-1, nic jiného nevrací.
             var result = new FitnessComposition();
@@ -230,7 +238,7 @@ namespace MMBotGA.ga.fitness
             result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);
             result.PnlProfitPerYear = PnlProfitPerYear(request, results);
 
-            var fitnessReach = result.PnlProfitPerYear * (result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio);
+            var fitnessReach = (result.PnlProfitPerYear / 2) * (result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio);
             result.Fitness = fitnessReach;
 
             //It is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma.
