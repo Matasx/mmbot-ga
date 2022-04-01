@@ -134,20 +134,7 @@ namespace MMBotGA.ga.fitness
             var interval = last.Tm - first.Tm;
             var profit = (Math.Max(last.Pl * 31536000000 / (interval * request.RunRequest.Balance), 0)) * 100;
 
-            //profitTriangle
-            double xDiff = (interval / 86400000);// - 1;
-            double yDiff = profit;// - 0;
-            var profitAngle = Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
-
-
-            //                      /|
-            //                  /    |
-            //              /      profit
-            //          /            |
-            //      / pAngle         |
-            //      ------days-------
-
-            return profitAngle;
+            return profit;
         }
 
         private static double IncomePerDayRatio(
@@ -222,29 +209,43 @@ namespace MMBotGA.ga.fitness
         {
             if (results == null || results.Count == 0) return new FitnessComposition();
 
-
-            const double rrrWeight = 0.2;
-            const double tightenNplRpnlWeight = 0.8;
-            const double ipdrWeight = 0.2;
+            const double rrrWeight = 0.4;
+            const double tightenNplRpnlWeight = 0.6;
+            //const double ipdrWeight = 0.2;
 
             const double tightenNplRpnlThreshold = 1; // % oscilace profit&loss kolem normalized profit.
             const double tightenEquityThreshold = 1;
 
-            var eventCheck = CheckForEvents(results); //0-1, nic jiného nevrací.
+            //var eventCheck = CheckForEvents(results); //0-1, nic jiného nevrací.
             var result = new FitnessComposition();
 
             result.RRR = rrrWeight * Rrr(results);
             result.TightenNplRpnl = tightenNplRpnlWeight * TightenNplRpnlSubmergedFunction(results, tightenEquityThreshold, tightenNplRpnlThreshold);
-            result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);
+            //result.IncomePerDayRatio = ipdrWeight * IncomePerDayRatio(results);
             result.PnlProfitPerYear = PnlProfitPerYear(request, results);
 
-            var fitnessReach = (result.PnlProfitPerYear / 2) * (result.RRR + result.TightenNplRpnl + result.IncomePerDayRatio);
-            result.Fitness = fitnessReach;
+            #region FitnessTriangleCalculation
+            var first = results.First();
+            var last = results.Last();
 
-            //It is a MUST for this fitness to be mathematically tied down by execution logic and budget handling by Gauss/HalfHalf under Gamma.
-            //Otherwise it will explode into extreme bets, using exponencial function.
-            //Also this fitness neeeds a kickstart in form of a ensureMinimumTradeCount(results, minimum trades per day), which multiplies the whole result (e.g. if under minTradesPerDay, whole results is 0). 
-            //result.Fitness = (result.PnlProfitPerYear * (result.TightenNplRpnl + result.RRR + result.IncomePerDayRatio)) * ensureMinimumTradeCount(results, 8);
+            var interval = last.Tm - first.Tm;
+            var backtestDays = (interval / 86400000);
+
+            double xDiff = backtestDays - (backtestDays * (result.RRR + result.TightenNplRpnl));
+            double yDiff = result.PnlProfitPerYear;
+            var fitnessAngle = Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
+
+
+            //                                 /    |
+            //                         /            |
+            //                  /                 profit
+            //          /                           |
+            //      / pAngle                        |
+            //      ------days-(fitness x days)-------
+
+            result.Fitness = fitnessAngle;
+            #endregion
+
 
             return result;
         }
