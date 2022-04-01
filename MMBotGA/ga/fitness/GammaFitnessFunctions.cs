@@ -141,6 +141,7 @@ namespace MMBotGA.ga.fitness
 
         }
 
+        #region NotFoundUseFor
         private static double IncomePerDayRatio(
             ICollection<RunResponse> results
         )
@@ -205,6 +206,7 @@ namespace MMBotGA.ga.fitness
 
             if (tradesPerDay > tradesPerDayThreshold) { return 1; } else { return 0; }
         }
+        #endregion
 
         public static FitnessComposition NpaRrr(
             BacktestRequest request,
@@ -242,20 +244,16 @@ namespace MMBotGA.ga.fitness
 
             if (penalization < 0) { fitnessAngle = 0; }
 
-            //                                 /     |
+            //                                      /|
+            //                                /      |
             //                         /             |
             //                  /                  profit
             //            /                          |
             //      / pAngle                         |
-            //      ------days------------------------
+            //      ---------------days---------------
 
             result.Fitness = fitnessAngle;
             #endregion
-
-            //if (fitnessAngle > 40)
-            //{
-            //    Console.WriteLine("Halt");
-            //}
 
             return result;
         }
