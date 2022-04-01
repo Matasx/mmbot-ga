@@ -110,7 +110,7 @@ namespace MMBotGA.data.provider
                 ? DateTimeRange.FromDiff(DateTime.UtcNow.Date.AddDays(0), TimeSpan.FromDays(lookBackBacktestDays))
                 : Settings.DateSettings.Backtest;
 
-            const int splits = 1; // 3
+            const int splits = 3; // 3
 
             return Settings.Allocations
                 .Select(x =>

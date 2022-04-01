@@ -60,15 +60,15 @@ namespace MMBotGA.ga.fitness
 
                     if (null != result.Info)
                     {
-                        double budgetCurrent = result.Info.BudgetCurrent;
-                        double budgetMax = result.Info.BudgetMax;
-                        double percentageDiffBudgetCalc = PercentageDifference(budgetCurrent, budgetMax);
+                        //double budgetCurrent = result.Info.BudgetCurrent;
+                        //double budgetMax = result.Info.BudgetMax;
+                        //double percentageDiffBudgetCalc = PercentageDifference(budgetCurrent, budgetMax);
 
                         //if (percentageDiffBudgetCalc > howDeepToDive) { deviatedTrades += 1; }
                     }
                 }
                 if (tradeSize == 0) { 
-                    deviatedTrades += 1.5;
+                    deviatedTrades += 2;
                 }
                 index++;
             }
@@ -134,7 +134,11 @@ namespace MMBotGA.ga.fitness
             var interval = last.Tm - first.Tm;
             var profit = (Math.Max(last.Pl * 31536000000 / (interval * request.RunRequest.Balance), 0)) * 100;
 
-            return profit;
+            if (profit <= 0) 
+            { return 0; } 
+            else 
+            { return Math.Sqrt(profit); }
+
         }
 
         private static double IncomePerDayRatio(
@@ -209,8 +213,8 @@ namespace MMBotGA.ga.fitness
         {
             if (results == null || results.Count == 0) return new FitnessComposition();
 
-            const double rrrWeight = 0.4;
-            const double tightenNplRpnlWeight = 0.6;
+            const double rrrWeight = 0.3;
+            const double tightenNplRpnlWeight = 0.7;
             //const double ipdrWeight = 0.2;
 
             const double tightenNplRpnlThreshold = 1; // % oscilace profit&loss kolem normalized profit.
@@ -230,22 +234,28 @@ namespace MMBotGA.ga.fitness
 
             var interval = last.Tm - first.Tm;
             var backtestDays = (interval / 86400000);
+            var penalization = backtestDays * (result.RRR + result.TightenNplRpnl);// / backtestDays;
 
-            double xDiff = backtestDays - (backtestDays * (result.RRR + result.TightenNplRpnl));
+            double xDiff = backtestDays - (penalization); //higher the penalization, lower the penalization.
             double yDiff = result.PnlProfitPerYear;
             var fitnessAngle = Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
 
+            if (penalization < 0) { fitnessAngle = 0; }
 
-            //                                 /    |
-            //                         /            |
-            //                  /                 profit
-            //          /                           |
-            //      / pAngle                        |
-            //      ------days-(fitness x days)-------
+            //                                 /     |
+            //                         /             |
+            //                  /                  profit
+            //            /                          |
+            //      / pAngle                         |
+            //      ------days------------------------
 
             result.Fitness = fitnessAngle;
             #endregion
 
+            //if (fitnessAngle > 40)
+            //{
+            //    Console.WriteLine("Halt");
+            //}
 
             return result;
         }
