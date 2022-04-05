@@ -32,11 +32,17 @@ namespace MMBotGA.data.provider
 
         private static IEnumerable<AllocationDefinition> AllocationDefinitions => new AllocationDefinition[]
         {
+            //new()
+            //{
+            //    Exchange = Exchange.Ftx,
+            //    Pair = new Pair("FTM", "PERP"),
+            //    Balance = 1000
+            //},
             new()
             {
-                Exchange = Exchange.Ftx,
-                Pair = new Pair("FTM", "PERP"),
-                Balance = 1000
+                Exchange = Exchange.Kucoin,
+                Pair = new Pair("TRAC", "BTC"),
+                Balance = 0.01
             },
             //new()
             //{
